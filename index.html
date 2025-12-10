@@ -38,7 +38,6 @@
             background-image: 
                 radial-gradient(circle at 20% 30%, rgba(0, 180, 255, 0.05) 0%, transparent 40%),
                 radial-gradient(circle at 80% 70%, rgba(120, 0, 255, 0.05) 0%, transparent 40%);
-            padding-bottom: 40px;
         }
 
         .container {
@@ -47,7 +46,6 @@
             padding: 0 var(--spacing-md);
         }
 
-        /* Glassmorphism базовый стиль */
         .glass {
             background: var(--glass-bg);
             backdrop-filter: blur(18px);
@@ -75,6 +73,7 @@
             display: flex;
             align-items: center;
             gap: var(--spacing-sm);
+            text-decoration: none;
         }
 
         .logo-icon {
@@ -98,9 +97,24 @@
             color: transparent;
         }
 
-        .auth-section {
+        .nav-links {
             display: flex;
-            gap: var(--spacing-sm);
+            gap: var(--spacing-md);
+            align-items: center;
+        }
+
+        .nav-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            padding: var(--spacing-xs) var(--spacing-sm);
+            border-radius: 8px;
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            color: var(--accent-color);
+            background: rgba(255, 255, 255, 0.05);
         }
 
         /* Кнопки */
@@ -117,6 +131,7 @@
             align-items: center;
             justify-content: center;
             gap: 8px;
+            text-decoration: none;
         }
 
         .btn-primary {
@@ -128,80 +143,6 @@
         .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 24px rgba(0, 200, 255, 0.3);
-        }
-
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.05);
-            color: var(--text-primary);
-            border: 1px solid var(--glass-border);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.2);
-        }
-
-        .btn-logout {
-            background: rgba(255, 50, 50, 0.1);
-            color: #ff5555;
-            border: 1px solid rgba(255, 50, 50, 0.3);
-        }
-
-        .btn-logout:hover {
-            background: rgba(255, 50, 50, 0.2);
-        }
-
-        /* Формы */
-        .form-container {
-            max-width: 600px;
-            margin: 0 auto var(--spacing-xl);
-            padding: var(--spacing-xl);
-            animation: slideUp 0.5s ease-out;
-        }
-
-        .form-title {
-            font-size: 24px;
-            margin-bottom: var(--spacing-lg);
-            text-align: center;
-            background: linear-gradient(90deg, #ffffff, var(--accent-color));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .form-group {
-            margin-bottom: var(--spacing-md);
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--text-secondary);
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .form-input, .form-textarea {
-            width: 100%;
-            padding: 16px;
-            background: rgba(10, 10, 15, 0.5);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            color: var(--text-primary);
-            font-family: inherit;
-            font-size: 16px;
-            transition: var(--transition);
-        }
-
-        .form-input:focus, .form-textarea:focus {
-            outline: none;
-            border-color: var(--accent-color);
-            box-shadow: 0 0 0 3px rgba(0, 200, 255, 0.1);
-        }
-
-        .form-textarea {
-            min-height: 150px;
-            resize: vertical;
         }
 
         /* Лента новостей */
@@ -219,6 +160,9 @@
             transform: translateY(20px);
             animation: slideUp 0.5s ease-out forwards;
             animation-delay: calc(var(--card-index) * 0.1s);
+            text-decoration: none;
+            display: block;
+            color: inherit;
         }
 
         .news-card:hover {
@@ -226,13 +170,6 @@
             box-shadow: 
                 0 12px 32px rgba(0, 0, 0, 0.3),
                 0 0 20px var(--accent-glow);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: var(--spacing-sm);
         }
 
         .card-title {
@@ -246,8 +183,7 @@
         .card-date {
             font-size: 14px;
             color: var(--text-secondary);
-            white-space: nowrap;
-            margin-left: var(--spacing-sm);
+            margin-bottom: var(--spacing-sm);
         }
 
         .card-description {
@@ -265,40 +201,6 @@
             text-decoration: none;
             font-weight: 600;
             font-size: 15px;
-            transition: var(--transition);
-        }
-
-        .card-link:hover {
-            gap: 12px;
-            text-shadow: 0 0 8px rgba(0, 200, 255, 0.5);
-        }
-
-        .card-link i {
-            font-size: 12px;
-        }
-
-        /* Уведомления */
-        .notification {
-            position: fixed;
-            top: 30px;
-            right: 30px;
-            padding: var(--spacing-md) var(--spacing-lg);
-            border-radius: var(--border-radius);
-            z-index: 1000;
-            animation: slideInRight 0.3s ease-out;
-            max-width: 400px;
-        }
-
-        .notification.success {
-            background: rgba(0, 200, 100, 0.15);
-            border: 1px solid rgba(0, 200, 100, 0.3);
-            color: #00ff88;
-        }
-
-        .notification.error {
-            background: rgba(255, 50, 50, 0.15);
-            border: 1px solid rgba(255, 50, 50, 0.3);
-            color: #ff5555;
         }
 
         /* Анимации */
@@ -313,22 +215,6 @@
             }
         }
 
-        @keyframes slideInRight {
-            from {
-                opacity: 0;
-                transform: translateX(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
         /* Адаптивность */
         @media (max-width: 768px) {
             .header-content {
@@ -337,27 +223,9 @@
                 text-align: center;
             }
             
-            .auth-section {
-                width: 100%;
-                justify-content: center;
-            }
-            
             .news-grid {
                 grid-template-columns: 1fr;
             }
-            
-            .form-container {
-                padding: var(--spacing-md);
-            }
-            
-            .container {
-                padding: 0 var(--spacing-sm);
-            }
-        }
-
-        /* Скрытые элементы */
-        .hidden {
-            display: none !important;
         }
 
         /* Лоадер */
@@ -366,28 +234,18 @@
             padding: var(--spacing-xl);
             font-size: 18px;
             color: var(--text-secondary);
+            grid-column: 1 / -1;
         }
 
         .loader i {
             margin-right: 10px;
             color: var(--accent-color);
+            animation: spin 1s linear infinite;
         }
 
-        /* Админ панель */
-        .admin-panel {
-            margin-bottom: var(--spacing-xl);
-        }
-
-        /* Заголовок ленты */
-        .feed-title {
-            font-size: 32px;
-            margin-bottom: var(--spacing-md);
-            text-align: center;
-            background: linear-gradient(90deg, #ffffff, var(--accent-color));
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            font-weight: 800;
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         .empty-state {
@@ -404,107 +262,50 @@
             color: var(--accent-color);
             opacity: 0.5;
         }
+
+        .feed-title {
+            font-size: 32px;
+            margin-bottom: var(--spacing-md);
+            text-align: center;
+            background: linear-gradient(90deg, #ffffff, var(--accent-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 800;
+        }
     </style>
 </head>
 <body>
-    <!-- Уведомления -->
-    <div id="notificationContainer"></div>
-
-    <!-- Header -->
     <header class="container">
         <div class="header-content">
-            <div class="logo">
+            <a href="/" class="logo">
                 <div class="logo-icon">
                     <i class="fas fa-brain"></i>
                 </div>
                 <div class="logo-text">Neuron News</div>
-            </div>
-            <div class="auth-section">
-                <button id="loginBtn" class="btn btn-secondary">
-                    <i class="fas fa-sign-in-alt"></i> Вход
-                </button>
-                <button id="logoutBtn" class="btn btn-logout hidden">
-                    <i class="fas fa-sign-out-alt"></i> Выйти
-                </button>
+            </a>
+            <div class="nav-links">
+                <a href="/admin.html" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Создать новость
+                </a>
             </div>
         </div>
     </header>
 
-    <!-- Форма входа -->
-    <div id="loginFormContainer" class="container hidden">
-        <div class="glass form-container">
-            <h2 class="form-title">Вход в систему</h2>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="loginEmail" class="form-label">Email</label>
-                    <input type="email" id="loginEmail" class="form-input" placeholder="admin@example.com" required>
-                </div>
-                <div class="form-group">
-                    <label for="loginPassword" class="form-label">Пароль</label>
-                    <input type="password" id="loginPassword" class="form-input" placeholder="Ваш пароль" required>
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
-                    <i class="fas fa-sign-in-alt"></i> Войти
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Админ панель -->
-    <div id="adminPanel" class="container admin-panel hidden">
-        <div class="glass form-container">
-            <h2 class="form-title">Создать новую публикацию</h2>
-            <form id="postForm">
-                <div class="form-group">
-                    <label for="postTitle" class="form-label">Заголовок</label>
-                    <input type="text" id="postTitle" class="form-input" placeholder="Введите заголовок новости" required>
-                </div>
-                <div class="form-group">
-                    <label for="postDescription" class="form-label">Описание</label>
-                    <textarea id="postDescription" class="form-textarea" placeholder="Введите описание новости" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="postUrl" class="form-label">Ссылка на полную статью</label>
-                    <input type="url" id="postUrl" class="form-input" placeholder="https://example.com/article" required>
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
-                    <i class="fas fa-paper-plane"></i> Опубликовать
-                </button>
-            </form>
-        </div>
-    </div>
-
-    <!-- Основная лента -->
     <main class="container">
         <h1 class="feed-title">Последние новости</h1>
         
         <div id="newsFeed" class="news-grid">
-            <!-- Новости будут загружаться здесь -->
             <div class="loader">
-                <i class="fas fa-spinner fa-spin"></i> Загрузка новостей...
+                <i class="fas fa-spinner"></i> Загрузка новостей...
             </div>
         </div>
     </main>
 
     <!-- Firebase SDK -->
     <script type="module">
-        // ===== FIREBASE CONFIG START =====
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { 
-            getAuth, 
-            signInWithEmailAndPassword, 
-            signOut, 
-            onAuthStateChanged 
-        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { 
-            getFirestore, 
-            collection, 
-            addDoc, 
-            serverTimestamp, 
-            query, 
-            orderBy, 
-            onSnapshot 
-        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, query, orderBy, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDOaDVzzPjyYm4HWMND2XYWjLy_h4wty5s",
@@ -517,71 +318,41 @@
         };
 
         const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
         const db = getFirestore(app);
-        // ===== FIREBASE CONFIG END =====
-
-        // Список разрешенных администраторов
-        const allowedAdmins = [
-            "admin@example.com",
-            "test@test.ru" // Для тестирования
-        ];
-
-        // DOM элементы
-        const loginBtn = document.getElementById('loginBtn');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const loginFormContainer = document.getElementById('loginFormContainer');
-        const adminPanel = document.getElementById('adminPanel');
-        const loginForm = document.getElementById('loginForm');
-        const postForm = document.getElementById('postForm');
-        const newsFeed = document.getElementById('newsFeed');
-
-        // Утилиты
-        function showNotification(message, type = 'success') {
-            const container = document.getElementById('notificationContainer');
-            const notification = document.createElement('div');
-            notification.className = `glass notification ${type}`;
-            notification.innerHTML = `
-                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
-                ${message}
-            `;
-            container.appendChild(notification);
-            
-            setTimeout(() => {
-                notification.style.animation = 'slideInRight 0.3s ease-out reverse';
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
-        }
 
         function formatDate(timestamp) {
-            if (!timestamp) return 'Дата не указана';
+            if (!timestamp) return '';
             const date = timestamp.toDate();
             return new Intl.DateTimeFormat('ru-RU', {
                 day: 'numeric',
                 month: 'long',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
+                year: 'numeric'
             }).format(date);
         }
 
-        // Рендер новостей
+        function generateSlug(title) {
+            return title
+                .toLowerCase()
+                .replace(/[^\w\s]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/--+/g, '-')
+                .trim();
+        }
+
         function renderNewsCard(post, index) {
+            const slug = generateSlug(post.title);
             return `
-                <article class="glass news-card" style="--card-index: ${index};">
-                    <div class="card-header">
-                        <h3 class="card-title">${post.title}</h3>
-                        <span class="card-date">${formatDate(post.createdAt)}</span>
-                    </div>
+                <a href="/${slug}" class="glass news-card" style="--card-index: ${index};">
+                    <h3 class="card-title">${post.title}</h3>
+                    <div class="card-date">${formatDate(post.createdAt)}</div>
                     <p class="card-description">${post.description}</p>
-                    <a href="${post.url}" target="_blank" class="card-link">
+                    <div class="card-link">
                         Читать полностью <i class="fas fa-arrow-right"></i>
-                    </a>
-                </article>
+                    </div>
+                </a>
             `;
         }
 
-        // Загрузка новостей в реальном времени
         function setupNewsListener() {
             const postsQuery = query(collection(db, "posts"), orderBy("createdAt", "desc"));
             
@@ -590,6 +361,8 @@
                 snapshot.forEach(doc => {
                     posts.push({ id: doc.id, ...doc.data() });
                 });
+                
+                const newsFeed = document.getElementById('newsFeed');
                 
                 if (posts.length === 0) {
                     newsFeed.innerHTML = `
@@ -606,7 +379,7 @@
                 ).join('');
             }, (error) => {
                 console.error("Ошибка загрузки новостей:", error);
-                newsFeed.innerHTML = `
+                document.getElementById('newsFeed').innerHTML = `
                     <div class="glass empty-state">
                         <i class="fas fa-exclamation-triangle"></i>
                         <p>Ошибка загрузки новостей. Пожалуйста, обновите страницу.</p>
@@ -615,91 +388,7 @@
             });
         }
 
-        // Обработчики аутентификации
-        loginBtn.addEventListener('click', () => {
-            loginFormContainer.classList.remove('hidden');
-            adminPanel.classList.add('hidden');
-        });
-
-        logoutBtn.addEventListener('click', async () => {
-            try {
-                await signOut(auth);
-                showNotification('Вы успешно вышли из системы');
-            } catch (error) {
-                showNotification('Ошибка при выходе: ' + error.message, 'error');
-            }
-        });
-
-        loginForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-                showNotification('Вход выполнен успешно!');
-                loginForm.reset();
-            } catch (error) {
-                showNotification('Ошибка входа: ' + error.message, 'error');
-            }
-        });
-
-        // Обработчик создания поста
-        postForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const title = document.getElementById('postTitle').value;
-            const description = document.getElementById('postDescription').value;
-            const url = document.getElementById('postUrl').value;
-            
-            try {
-                await addDoc(collection(db, "posts"), {
-                    title,
-                    description,
-                    url,
-                    createdAt: serverTimestamp()
-                });
-                
-                postForm.reset();
-                showNotification('Новость успешно опубликована!');
-            } catch (error) {
-                showNotification('Ошибка публикации: ' + error.message, 'error');
-            }
-        });
-
-        // Отслеживание состояния аутентификации
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                // Пользователь вошел
-                const isAdmin = allowedAdmins.includes(user.email);
-                
-                loginBtn.classList.add('hidden');
-                logoutBtn.classList.remove('hidden');
-                loginFormContainer.classList.add('hidden');
-                
-                if (isAdmin) {
-                    adminPanel.classList.remove('hidden');
-                } else {
-                    adminPanel.classList.add('hidden');
-                    showNotification('У вас нет прав администратора', 'error');
-                }
-            } else {
-                // Пользователь вышел
-                loginBtn.classList.remove('hidden');
-                logoutBtn.classList.add('hidden');
-                loginFormContainer.classList.add('hidden');
-                adminPanel.classList.add('hidden');
-            }
-        });
-
-        // Инициализация приложения
-        function init() {
-            setupNewsListener();
-            showNotification('Добро пожаловать в Neuron News!', 'success');
-        }
-
-        // Запуск приложения после загрузки DOM
-        document.addEventListener('DOMContentLoaded', init);
+        document.addEventListener('DOMContentLoaded', setupNewsListener);
     </script>
 </body>
 </html>
