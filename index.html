@@ -3,284 +3,508 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neuron News | Ecosystem Platform</title>
-    
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
+    <title>Neuron News | Новостная платформа</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-color: #0a0a0c;
-            --glass-bg: rgba(15, 15, 20, 0.5);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --accent: #00c8ff;
-            --accent-glow: rgba(0, 200, 255, 0.3);
-            --text-main: #ffffff;
-            --text-dim: #a0a0a0;
-        }
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
+        }
+
+        :root {
+            --primary-bg: #0a0a0f;
+            --glass-bg: rgba(15, 15, 20, 0.5);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --accent-color: #00d9ff;
+            --accent-glow: rgba(0, 200, 255, 0.15);
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0c0;
+            --spacing-xs: 8px;
+            --spacing-sm: 16px;
+            --spacing-md: 24px;
+            --spacing-lg: 32px;
+            --spacing-xl: 48px;
+            --border-radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         body {
-            background-color: var(--bg-color);
-            background-image: 
-                radial-gradient(circle at 10% 20%, rgba(0, 200, 255, 0.05) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(0, 100, 255, 0.05) 0%, transparent 40%);
-            color: var(--text-main);
+            font-family: 'Inter', sans-serif;
+            background: var(--primary-bg);
+            color: var(--text-primary);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(0, 180, 255, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(120, 0, 255, 0.05) 0%, transparent 40%);
+            padding-bottom: 40px;
         }
 
-        /* Эффект стекла */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 var(--spacing-md);
+        }
+
+        /* Glassmorphism базовый стиль */
         .glass {
             background: var(--glass-bg);
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
             border: 1px solid var(--glass-border);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            border-radius: var(--border-radius);
+            box-shadow: 
+                0 4px 24px rgba(0, 0, 0, 0.2),
+                0 0 12px var(--accent-glow);
         }
 
-        /* Шапка */
+        /* Header */
         header {
-            width: 100%;
-            max-width: 900px;
-            padding: 2rem 1rem;
+            padding: var(--spacing-lg) 0;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 100;
         }
 
         .logo {
-            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-color), #0099ff);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .logo-text {
+            font-size: 28px;
             font-weight: 700;
-            letter-spacing: -1px;
-            background: linear-gradient(90deg, #fff, var(--accent));
+            background: linear-gradient(90deg, #ffffff, var(--accent-color));
             -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .auth-section {
+            display: flex;
+            gap: var(--spacing-sm);
         }
 
         /* Кнопки */
         .btn {
-            padding: 0.6rem 1.2rem;
-            border-radius: 8px;
-            border: none;
-            cursor: pointer;
+            padding: 12px 24px;
+            border-radius: 12px;
             font-weight: 600;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
+            font-size: 15px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
 
         .btn-primary {
-            background: var(--accent);
-            color: #000;
-            box-shadow: 0 0 15px var(--accent-glow);
+            background: linear-gradient(135deg, var(--accent-color), #0099ff);
+            color: white;
+            box-shadow: 0 4px 16px rgba(0, 200, 255, 0.2);
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 0 25px var(--accent-glow);
+            box-shadow: 0 6px 24px rgba(0, 200, 255, 0.3);
         }
 
-        .btn-outline {
-            background: transparent;
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
             border: 1px solid var(--glass-border);
-            color: #fff;
         }
 
-        /* Контентная область */
-        main {
-            width: 100%;
-            max-width: 800px;
-            padding: 1rem;
-            flex-grow: 1;
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
         }
 
-        /* Админ-панель */
-        #admin-panel {
-            display: none; /* Скрыто по умолчанию */
-            margin-bottom: 3rem;
-            padding: 2rem;
-            border-radius: 16px;
+        .btn-logout {
+            background: rgba(255, 50, 50, 0.1);
+            color: #ff5555;
+            border: 1px solid rgba(255, 50, 50, 0.3);
+        }
+
+        .btn-logout:hover {
+            background: rgba(255, 50, 50, 0.2);
+        }
+
+        /* Формы */
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto var(--spacing-xl);
+            padding: var(--spacing-xl);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .form-title {
+            font-size: 24px;
+            margin-bottom: var(--spacing-lg);
+            text-align: center;
+            background: linear-gradient(90deg, #ffffff, var(--accent-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
 
         .form-group {
-            margin-bottom: 1.2rem;
+            margin-bottom: var(--spacing-md);
         }
 
-        label {
+        .form-label {
             display: block;
-            margin-bottom: 0.5rem;
-            font-size: 0.8rem;
-            color: var(--text-dim);
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
         }
 
-        input, textarea {
+        .form-input, .form-textarea {
             width: 100%;
-            padding: 0.8rem;
-            background: rgba(255, 255, 255, 0.05);
+            padding: 16px;
+            background: rgba(10, 10, 15, 0.5);
             border: 1px solid var(--glass-border);
-            border-radius: 8px;
-            color: #fff;
-            outline: none;
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 16px;
+            transition: var(--transition);
         }
 
-        input:focus, textarea:focus {
-            border-color: var(--accent);
+        .form-input:focus, .form-textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(0, 200, 255, 0.1);
+        }
+
+        .form-textarea {
+            min-height: 150px;
+            resize: vertical;
         }
 
         /* Лента новостей */
-        #news-feed {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: var(--spacing-lg);
+            margin-top: var(--spacing-lg);
         }
 
         .news-card {
-            padding: 1.5rem;
-            border-radius: 16px;
-            animation: slideUp 0.6s ease forwards;
+            padding: var(--spacing-lg);
+            transition: var(--transition);
             opacity: 0;
-            transition: transform 0.3s ease;
+            transform: translateY(20px);
+            animation: slideUp 0.5s ease-out forwards;
+            animation-delay: calc(var(--card-index) * 0.1s);
         }
 
         .news-card:hover {
-            transform: scale(1.01);
-            border-color: rgba(0, 200, 255, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 
+                0 12px 32px rgba(0, 0, 0, 0.3),
+                0 0 20px var(--accent-glow);
         }
 
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .news-card h2 {
-            margin-bottom: 0.8rem;
-            font-size: 1.4rem;
-            line-height: 1.2;
-        }
-
-        .news-card p {
-            color: var(--text-dim);
-            font-size: 0.95rem;
-            line-height: 1.6;
-            margin-bottom: 1.2rem;
-        }
-
-        .news-card .meta {
+        .card-header {
             display: flex;
             justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            line-height: 1.4;
+            margin-bottom: var(--spacing-sm);
+            color: var(--text-primary);
+        }
+
+        .card-date {
+            font-size: 14px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            margin-left: var(--spacing-sm);
+        }
+
+        .card-description {
+            color: var(--text-secondary);
+            line-height: 1.6;
+            margin-bottom: var(--spacing-md);
+            font-size: 15px;
+        }
+
+        .card-link {
+            display: inline-flex;
             align-items: center;
-            font-size: 0.8rem;
-        }
-
-        .news-card .date {
-            color: #666;
-        }
-
-        .news-card .read-more {
-            color: var(--accent);
+            gap: 8px;
+            color: var(--accent-color);
             text-decoration: none;
             font-weight: 600;
+            font-size: 15px;
+            transition: var(--transition);
         }
 
-        /* Модальное окно авторизации */
-        #auth-modal {
-            display: none;
+        .card-link:hover {
+            gap: 12px;
+            text-shadow: 0 0 8px rgba(0, 200, 255, 0.5);
+        }
+
+        .card-link i {
+            font-size: 12px;
+        }
+
+        /* Уведомления */
+        .notification {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.8);
+            top: 30px;
+            right: 30px;
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--border-radius);
             z-index: 1000;
-            align-items: center;
-            justify-content: center;
+            animation: slideInRight 0.3s ease-out;
+            max-width: 400px;
         }
 
-        .modal-content {
-            width: 90%;
-            max-width: 400px;
-            padding: 2.5rem;
-            border-radius: 20px;
+        .notification.success {
+            background: rgba(0, 200, 100, 0.15);
+            border: 1px solid rgba(0, 200, 100, 0.3);
+            color: #00ff88;
+        }
+
+        .notification.error {
+            background: rgba(255, 50, 50, 0.15);
+            border: 1px solid rgba(255, 50, 50, 0.3);
+            color: #ff5555;
+        }
+
+        /* Анимации */
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         /* Адаптивность */
-        @media (max-width: 600px) {
-            header { padding: 1rem; }
-            .logo { font-size: 1.2rem; }
-            .news-card h2 { font-size: 1.2rem; }
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: var(--spacing-md);
+                text-align: center;
+            }
+            
+            .auth-section {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .news-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-container {
+                padding: var(--spacing-md);
+            }
+            
+            .container {
+                padding: 0 var(--spacing-sm);
+            }
+        }
+
+        /* Скрытые элементы */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Лоадер */
+        .loader {
+            text-align: center;
+            padding: var(--spacing-xl);
+            font-size: 18px;
+            color: var(--text-secondary);
+        }
+
+        .loader i {
+            margin-right: 10px;
+            color: var(--accent-color);
+        }
+
+        /* Админ панель */
+        .admin-panel {
+            margin-bottom: var(--spacing-xl);
+        }
+
+        /* Заголовок ленты */
+        .feed-title {
+            font-size: 32px;
+            margin-bottom: var(--spacing-md);
+            text-align: center;
+            background: linear-gradient(90deg, #ffffff, var(--accent-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 800;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: var(--spacing-xl);
+            color: var(--text-secondary);
+            font-size: 18px;
+            grid-column: 1 / -1;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: var(--spacing-md);
+            color: var(--accent-color);
+            opacity: 0.5;
         }
     </style>
 </head>
 <body>
+    <!-- Уведомления -->
+    <div id="notificationContainer"></div>
 
-    <header>
-        <div class="logo">NEURON NEWS</div>
-        <div id="auth-controls">
-            <button class="btn btn-outline" id="login-btn">Admin Login</button>
-            <button class="btn btn-outline" id="logout-btn" style="display:none;">Logout</button>
+    <!-- Header -->
+    <header class="container">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <div class="logo-text">Neuron News</div>
+            </div>
+            <div class="auth-section">
+                <button id="loginBtn" class="btn btn-secondary">
+                    <i class="fas fa-sign-in-alt"></i> Вход
+                </button>
+                <button id="logoutBtn" class="btn btn-logout hidden">
+                    <i class="fas fa-sign-out-alt"></i> Выйти
+                </button>
+            </div>
         </div>
     </header>
 
-    <main>
-        <section id="admin-panel" class="glass">
-            <h3 style="margin-bottom: 1.5rem; color: var(--accent);">Создать публикацию</h3>
-            <form id="post-form">
+    <!-- Форма входа -->
+    <div id="loginFormContainer" class="container hidden">
+        <div class="glass form-container">
+            <h2 class="form-title">Вход в систему</h2>
+            <form id="loginForm">
                 <div class="form-group">
-                    <label>Заголовок</label>
-                    <input type="text" id="post-title" required placeholder="Введите заголовок">
+                    <label for="loginEmail" class="form-label">Email</label>
+                    <input type="email" id="loginEmail" class="form-input" placeholder="admin@example.com" required>
                 </div>
                 <div class="form-group">
-                    <label>Описание</label>
-                    <textarea id="post-desc" rows="4" required placeholder="Краткое описание новости"></textarea>
+                    <label for="loginPassword" class="form-label">Пароль</label>
+                    <input type="password" id="loginPassword" class="form-input" placeholder="Ваш пароль" required>
                 </div>
-                <div class="form-group">
-                    <label>Ссылка (URL)</label>
-                    <input type="url" id="post-link" required placeholder="https://...">
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Опубликовать в ленту</button>
-            </form>
-        </section>
-
-        <section id="news-feed">
-            <div style="text-align: center; padding: 2rem; color: var(--text-dim);">Загрузка нейронной сети...</div>
-        </section>
-    </main>
-
-    <div id="auth-modal">
-        <div class="modal-content glass">
-            <h2 style="margin-bottom: 1.5rem; text-align: center;">Вход</h2>
-            <form id="login-form">
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="login-email" required>
-                </div>
-                <div class="form-group">
-                    <label>Password</label>
-                    <input type="password" id="login-password" required>
-                </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Войти</button>
-                <button type="button" class="btn btn-outline" id="close-modal" style="width: 100%; margin-top: 0.5rem;">Закрыть</button>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-sign-in-alt"></i> Войти
+                </button>
             </form>
         </div>
     </div>
 
+    <!-- Админ панель -->
+    <div id="adminPanel" class="container admin-panel hidden">
+        <div class="glass form-container">
+            <h2 class="form-title">Создать новую публикацию</h2>
+            <form id="postForm">
+                <div class="form-group">
+                    <label for="postTitle" class="form-label">Заголовок</label>
+                    <input type="text" id="postTitle" class="form-input" placeholder="Введите заголовок новости" required>
+                </div>
+                <div class="form-group">
+                    <label for="postDescription" class="form-label">Описание</label>
+                    <textarea id="postDescription" class="form-textarea" placeholder="Введите описание новости" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="postUrl" class="form-label">Ссылка на полную статью</label>
+                    <input type="url" id="postUrl" class="form-input" placeholder="https://example.com/article" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    <i class="fas fa-paper-plane"></i> Опубликовать
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Основная лента -->
+    <main class="container">
+        <h1 class="feed-title">Последние новости</h1>
+        
+        <div id="newsFeed" class="news-grid">
+            <!-- Новости будут загружаться здесь -->
+            <div class="loader">
+                <i class="fas fa-spinner fa-spin"></i> Загрузка новостей...
+            </div>
+        </div>
+    </main>
+
+    <!-- Firebase SDK -->
     <script type="module">
+        // ===== FIREBASE CONFIG START =====
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { 
+            getAuth, 
+            signInWithEmailAndPassword, 
+            signOut, 
+            onAuthStateChanged 
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { 
+            getFirestore, 
+            collection, 
+            addDoc, 
+            serverTimestamp, 
+            query, 
+            orderBy, 
+            onSnapshot 
+        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDOaDVzzPjyYm4HWMND2XYWjLy_h4wty5s",
@@ -292,102 +516,190 @@
             measurementId: "G-T4XQY6L4BY"
         };
 
-        // Инициализация
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        // ===== FIREBASE CONFIG END =====
 
-        // Массив админов (Обязательно замените на реальный email в Firebase Auth)
-        const allowedAdmins = ["admin@example.com"];
+        // Список разрешенных администраторов
+        const allowedAdmins = [
+            "admin@example.com",
+            "test@test.com" // Для тестирования
+        ];
 
-        // UI Элементы
-        const newsFeed = document.getElementById('news-feed');
-        const adminPanel = document.getElementById('admin-panel');
-        const loginBtn = document.getElementById('login-btn');
-        const logoutBtn = document.getElementById('logout-btn');
-        const authModal = document.getElementById('auth-modal');
-        const loginForm = document.getElementById('login-form');
-        const postForm = document.getElementById('post-form');
+        // DOM элементы
+        const loginBtn = document.getElementById('loginBtn');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const loginFormContainer = document.getElementById('loginFormContainer');
+        const adminPanel = document.getElementById('adminPanel');
+        const loginForm = document.getElementById('loginForm');
+        const postForm = document.getElementById('postForm');
+        const newsFeed = document.getElementById('newsFeed');
 
-        // --- ЛОГИКА АВТОРИЗАЦИИ ---
+        // Утилиты
+        function showNotification(message, type = 'success') {
+            const container = document.getElementById('notificationContainer');
+            const notification = document.createElement('div');
+            notification.className = `glass notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i>
+                ${message}
+            `;
+            container.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.animation = 'slideInRight 0.3s ease-out reverse';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
 
-        onAuthStateChanged(auth, (user) => {
-            if (user && allowedAdmins.includes(user.email)) {
-                adminPanel.style.display = 'block';
-                loginBtn.style.display = 'none';
-                logoutBtn.style.display = 'inline-block';
-            } else {
-                adminPanel.style.display = 'none';
-                loginBtn.style.display = 'inline-block';
-                logoutBtn.style.display = 'none';
-            }
-        });
+        function formatDate(timestamp) {
+            if (!timestamp) return 'Дата не указана';
+            const date = timestamp.toDate();
+            return new Intl.DateTimeFormat('ru-RU', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }).format(date);
+        }
 
-        loginBtn.onclick = () => authModal.style.display = 'flex';
-        document.getElementById('close-modal').onclick = () => authModal.style.display = 'none';
+        // Рендер новостей
+        function renderNewsCard(post, index) {
+            return `
+                <article class="glass news-card" style="--card-index: ${index};">
+                    <div class="card-header">
+                        <h3 class="card-title">${post.title}</h3>
+                        <span class="card-date">${formatDate(post.createdAt)}</span>
+                    </div>
+                    <p class="card-description">${post.description}</p>
+                    <a href="${post.url}" target="_blank" class="card-link">
+                        Читать полностью <i class="fas fa-arrow-right"></i>
+                    </a>
+                </article>
+            `;
+        }
 
-        loginForm.onsubmit = async (e) => {
-            e.preventDefault();
-            try {
-                await signInWithEmailAndPassword(auth, loginForm['login-email'].value, loginForm['login-password'].value);
-                authModal.style.display = 'none';
-                loginForm.reset();
-            } catch (error) {
-                alert("Ошибка доступа: " + error.message);
-            }
-        };
-
-        logoutBtn.onclick = () => signOut(auth);
-
-        // --- ЛОГИКА FIRESTORE (ЛЕНТА) ---
-
-        // Публикация новости
-        postForm.onsubmit = async (e) => {
-            e.preventDefault();
-            try {
-                await addDoc(collection(db, "posts"), {
-                    title: document.getElementById('post-title').value,
-                    description: document.getElementById('post-desc').value,
-                    url: document.getElementById('post-link').value,
-                    createdAt: serverTimestamp()
+        // Загрузка новостей в реальном времени
+        function setupNewsListener() {
+            const postsQuery = query(collection(db, "posts"), orderBy("createdAt", "desc"));
+            
+            onSnapshot(postsQuery, (snapshot) => {
+                const posts = [];
+                snapshot.forEach(doc => {
+                    posts.push({ id: doc.id, ...doc.data() });
                 });
-                postForm.reset();
-                alert("Опубликовано!");
-            } catch (error) {
-                console.error(error);
-                alert("Ошибка при сохранении");
-            }
-        };
-
-        // Реал-тайм слушатель ленты
-        const q = query(collection(db, "posts"), orderBy("createdAt", "desc"));
-        
-        onSnapshot(q, (snapshot) => {
-            newsFeed.innerHTML = '';
-            if (snapshot.empty) {
-                newsFeed.innerHTML = '<div style="text-align: center; color: #555;">Новостей пока нет</div>';
-                return;
-            }
-            snapshot.forEach((doc) => {
-                const data = doc.data();
-                const date = data.createdAt ? new Date(data.createdAt.seconds * 1000).toLocaleDateString() : 'Только что';
                 
-                const card = document.createElement('div');
-                card.className = 'news-card glass';
+                if (posts.length === 0) {
+                    newsFeed.innerHTML = `
+                        <div class="glass empty-state">
+                            <i class="fas fa-newspaper"></i>
+                            <p>Пока нет новостей. Будьте первым, кто опубликует!</p>
+                        </div>
+                    `;
+                    return;
+                }
                 
-                // ИСПРАВЛЕНИЕ: добавлены обратные кавычки `
-                card.innerHTML = `
-                    <h2>${data.title}</h2>
-                    <p>${data.description}</p>
-                    <div class="meta">
-                        <span class="date">${date}</span>
-                        <a href="${data.url}" target="_blank" class="read-more">Читать полностью →</a>
+                newsFeed.innerHTML = posts.map((post, index) => 
+                    renderNewsCard(post, index)
+                ).join('');
+            }, (error) => {
+                console.error("Ошибка загрузки новостей:", error);
+                newsFeed.innerHTML = `
+                    <div class="glass empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Ошибка загрузки новостей. Пожалуйста, обновите страницу.</p>
                     </div>
                 `;
-                newsFeed.appendChild(card);
             });
+        }
+
+        // Обработчики аутентификации
+        loginBtn.addEventListener('click', () => {
+            loginFormContainer.classList.remove('hidden');
+            adminPanel.classList.add('hidden');
         });
 
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                showNotification('Вы успешно вышли из системы');
+            } catch (error) {
+                showNotification('Ошибка при выходе: ' + error.message, 'error');
+            }
+        });
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                showNotification('Вход выполнен успешно!');
+                loginForm.reset();
+            } catch (error) {
+                showNotification('Ошибка входа: ' + error.message, 'error');
+            }
+        });
+
+        // Обработчик создания поста
+        postForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const title = document.getElementById('postTitle').value;
+            const description = document.getElementById('postDescription').value;
+            const url = document.getElementById('postUrl').value;
+            
+            try {
+                await addDoc(collection(db, "posts"), {
+                    title,
+                    description,
+                    url,
+                    createdAt: serverTimestamp()
+                });
+                
+                postForm.reset();
+                showNotification('Новость успешно опубликована!');
+            } catch (error) {
+                showNotification('Ошибка публикации: ' + error.message, 'error');
+            }
+        });
+
+        // Отслеживание состояния аутентификации
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // Пользователь вошел
+                const isAdmin = allowedAdmins.includes(user.email);
+                
+                loginBtn.classList.add('hidden');
+                logoutBtn.classList.remove('hidden');
+                loginFormContainer.classList.add('hidden');
+                
+                if (isAdmin) {
+                    adminPanel.classList.remove('hidden');
+                } else {
+                    adminPanel.classList.add('hidden');
+                    showNotification('У вас нет прав администратора', 'error');
+                }
+            } else {
+                // Пользователь вышел
+                loginBtn.classList.remove('hidden');
+                logoutBtn.classList.add('hidden');
+                loginFormContainer.classList.add('hidden');
+                adminPanel.classList.add('hidden');
+            }
+        });
+
+        // Инициализация приложения
+        function init() {
+            setupNewsListener();
+            showNotification('Добро пожаловать в Neuron News!', 'success');
+        }
+
+        // Запуск приложения после загрузки DOM
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
