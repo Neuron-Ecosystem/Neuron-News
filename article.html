@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neuron News | Загрузка статьи...</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-bg: #0a0a0f;
+            --glass-bg: rgba(15, 15, 20, 0.5);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --accent-color: #00d9ff;
+            --accent-glow: rgba(0, 200, 255, 0.15);
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0c0;
+            --spacing-xs: 8px;
+            --spacing-sm: 16px;
+            --spacing-md: 24px;
+            --spacing-lg: 32px;
+            --spacing-xl: 48px;
+            --border-radius: 16px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--primary-bg);
+            color: var(--text-primary);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(0, 180, 255, 0.05) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(120, 0, 255, 0.05) 0%, transparent 40%);
+            padding-bottom: 40px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 var(--spacing-md);
+        }
+
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--border-radius);
+            box-shadow: 
+                0 4px 24px rgba(0, 0, 0, 0.2),
+                0 0 12px var(--accent-glow);
+        }
+
+        /* Header */
+        header {
+            padding: var(--spacing-lg) 0;
+            margin-bottom: var(--spacing-xl);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: var(--spacing-sm);
+            text-decoration: none;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--accent-color), #0099ff);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .logo-text {
+            font-size: 28px;
+            font-weight: 700;
+            background: linear-gradient(90deg, #ffffff, var(--accent-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        /* Кнопки */
+        .btn {
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            font-family: inherit;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+            border: 1px solid var(--glass-border);
+            text-decoration: none;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Статья */
+        .article-container {
+            padding: var(--spacing-xl);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        .article-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-lg);
+            color: var(--text-secondary);
+            font-size: 14px;
+            flex-wrap: wrap;
+            gap: var(--spacing-sm);
+        }
+
+        .article-date {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .article-title {
+            font-size: 36px;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: var(--spacing-lg);
+            background: linear-gradient(90deg, #ffffff, var(--accent-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .article-content {
+            line-height: 1.8;
+            font-size: 18px;
+            color: var(--text-primary);
+        }
+
+        .article-content p {
+            margin-bottom: var(--spacing-md);
+        }
+
+        .article-content h2, .article-content h3 {
+            margin: var(--spacing-lg) 0 var(--spacing-md);
+            color: var(--text-primary);
+        }
+
+        .article-content a {
+            color: var(--accent-color);
+            text-decoration: none;
+        }
+
+        .article-content a:hover {
+            text-decoration: underline;
+        }
+
+        .article-content ul, .article-content ol {
+            margin-left: var(--spacing-lg);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .article-content code {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+        }
+
+        .article-content pre {
+            background: rgba(0, 0, 0, 0.3);
+            padding: var(--spacing-md);
+            border-radius: 8px;
+            overflow-x: auto;
+            margin-bottom: var(--spacing-md);
+        }
+
+        .article-content blockquote {
+            border-left: 4px solid var(--accent-color);
+            padding-left: var(--spacing-md);
+            margin-left: 0;
+            margin-bottom: var(--spacing-md);
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        /* Лоадер */
+        .loader {
+            text-align: center;
+            padding: var(--spacing-xl);
+            font-size: 18px;
+            color: var(--text-secondary);
+        }
+
+        .loader i {
+            margin-right: 10px;
+            color: var(--accent-color);
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .error-state {
+            text-align: center;
+            padding: var(--spacing-xl);
+            color: var(--text-secondary);
+            font-size: 18px;
+        }
+
+        .error-state i {
+            font-size: 48px;
+            margin-bottom: var(--spacing-md);
+            color: #ff5555;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: var(--spacing-md);
+                text-align: center;
+            }
+            
+            .article-title {
+                font-size: 28px;
+            }
+            
+            .article-container {
+                padding: var(--spacing-md);
+            }
+            
+            .container {
+                padding: 0 var(--spacing-sm);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="container">
+        <div class="header-content">
+            <a href="/" class="logo">
+                <div class="logo-icon">
+                    <i class="fas fa-brain"></i>
+                </div>
+                <div class="logo-text">Neuron News</div>
+            </a>
+            <a href="/" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Назад к ленте
+            </a>
+        </div>
+    </header>
+
+    <main class="container">
+        <div id="articleContent" class="glass article-container">
+            <div class="loader">
+                <i class="fas fa-spinner"></i> Загрузка статьи...
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDOaDVzzPjyYm4HWMND2XYWjLy_h4wty5s",
+            authDomain: "neuron-ecosystem-2025.firebaseapp.com",
+            projectId: "neuron-ecosystem-2025",
+            storageBucket: "neuron-ecosystem-2025.firebasestorage.app",
+            messagingSenderId: "589834476565",
+            appId: "1:589834476565:web:cd5497b25b08aa66dd421c",
+            measurementId: "G-T4XQY6L4BY"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        function formatDate(timestamp) {
+            if (!timestamp) return '';
+            const date = timestamp.toDate();
+            return new Intl.DateTimeFormat('ru-RU', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            }).format(date);
+        }
+
+        function generateSlug(title) {
+            return title
+                .toLowerCase()
+                .replace(/[^\w\s]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/--+/g, '-')
+                .trim();
+        }
+
+        function getSlugFromUrl() {
+            const path = window.location.pathname;
+            return path.substring(1); // Убираем начальный слэш
+        }
+
+        function parseMarkdown(text) {
+            // Простой парсер Markdown
+            return text
+                .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+                .replace(/\*\*(.*)\*\*/gim, '<strong>$1</strong>')
+                .replace(/\*(.*)\*/gim, '<em>$1</em>')
+                .replace(/!\[(.*?)\]\((.*?)\)/gim, '<img alt="$1" src="$2">')
+                .replace(/\[(.*?)\]\((.*?)\)/gim, '<a href="$2">$1</a>')
+                .replace(/`(.*?)`/gim, '<code>$1</code>')
+                .replace(/\n\n/gim, '</p><p>')
+                .replace(/\n/gim, '<br>');
+        }
+
+        async function loadArticle() {
+            const slug = getSlugFromUrl();
+            const articleContent = document.getElementById('articleContent');
+            
+            if (!slug) {
+                window.location.href = '/';
+                return;
+            }
+
+            try {
+                // Ищем статью по заголовку (генерируем slug из заголовка)
+                const postsQuery = query(collection(db, "posts"));
+                const querySnapshot = await getDocs(postsQuery);
+                
+                let foundArticle = null;
+                
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const articleSlug = generateSlug(data.title);
+                    if (articleSlug === slug) {
+                        foundArticle = { id: doc.id, ...data };
+                    }
+                });
+
+                if (!foundArticle) {
+                    articleContent.innerHTML = `
+                        <div class="error-state">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h2>Статья не найдена</h2>
+                            <p>Запрошенная статья не существует или была удалена.</p>
+                            <a href="/" class="btn btn-secondary" style="margin-top: 20px;">
+                                <i class="fas fa-arrow-left"></i> Вернуться на главную
+                            </a>
+                        </div>
+                    `;
+                    document.title = 'Neuron News | Статья не найдена';
+                    return;
+                }
+
+                // Обновляем мета-теги для SEO
+                document.title = `${foundArticle.title} | Neuron News`;
+                
+                // Рендерим статью
+                const contentHtml = foundArticle.content 
+                    ? parseMarkdown(foundArticle.content)
+                    : foundArticle.description || '';
+
+                articleContent.innerHTML = `
+                    <div class="article-meta">
+                        <div class="article-date">
+                            <i class="far fa-calendar"></i>
+                            ${formatDate(foundArticle.createdAt)}
+                        </div>
+                    </div>
+                    <h1 class="article-title">${foundArticle.title}</h1>
+                    <div class="article-content">
+                        ${contentHtml}
+                        ${foundArticle.url ? `
+                            <p>
+                                <strong>Источник:</strong> 
+                                <a href="${foundArticle.url}" target="_blank" rel="noopener noreferrer">
+                                    ${foundArticle.url}
+                                </a>
+                            </p>
+                        ` : ''}
+                    </div>
+                `;
+
+            } catch (error) {
+                console.error("Ошибка загрузки статьи:", error);
+                articleContent.innerHTML = `
+                    <div class="error-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h2>Ошибка загрузки</h2>
+                        <p>Произошла ошибка при загрузке статьи. Пожалуйста, попробуйте позже.</p>
+                        <a href="/" class="btn btn-secondary" style="margin-top: 20px;">
+                            <i class="fas fa-arrow-left"></i> Вернуться на главную
+                        </a>
+                    </div>
+                `;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadArticle);
+    </script>
+</body>
+</html>
