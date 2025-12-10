@@ -1,0 +1,13 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Публичные посты
+    match /posts/{postId} {
+      allow read: if true;  // Читать могут все
+      allow create: if request.auth != null && 
+        (request.auth.token.email == "admin@example.com" ||
+         request.auth.token.email == "test@test.ru");
+      allow update, delete: if false; // Только создание
+    }
+  }
+}
