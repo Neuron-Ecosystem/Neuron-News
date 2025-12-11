@@ -253,6 +253,22 @@
             background: rgba(0, 200, 100, 0.2);
         }
 
+        .btn-google {
+            background: #ffffff;
+            color: #757575;
+            border: 1px solid #ddd;
+        }
+
+        .btn-google:hover {
+            background: #f8f8f8;
+            border-color: #ccc;
+        }
+
+        .btn-google img {
+            width: 18px;
+            height: 18px;
+        }
+
         /* Страницы */
         .page {
             display: none;
@@ -375,6 +391,21 @@
                 min-height: 66px;
                 margin-bottom: var(--mobile-spacing-md);
             }
+        }
+
+        /* Кнопка "Читать полностью" приподнята */
+        .read-more {
+            color: var(--accent-color);
+            font-weight: 600;
+            margin-bottom: var(--spacing-md);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+        }
+
+        .news-card:hover .read-more {
+            transform: translateX(5px);
         }
 
         /* Теги в карточках новостей */
@@ -596,6 +627,169 @@
 
         .source-link i {
             font-size: 12px;
+        }
+
+        /* Стили для комментариев */
+        .comments-section {
+            margin-top: var(--spacing-xl);
+            padding-top: var(--spacing-lg);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .comments-title {
+            font-size: 24px;
+            margin-bottom: var(--spacing-md);
+            color: var(--text-primary);
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            .comments-title {
+                font-size: 20px;
+                margin-bottom: var(--mobile-spacing-md);
+            }
+        }
+
+        .comment-form {
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .comment-input {
+            width: 100%;
+            min-height: 100px;
+            padding: 16px;
+            background: rgba(10, 10, 15, 0.5);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 16px;
+            resize: vertical;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .comment-input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(0, 200, 255, 0.1);
+        }
+
+        .comment-form-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .comment-count {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing-md);
+        }
+
+        .comment-item {
+            padding: var(--spacing-md);
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: var(--border-radius);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .comment-author {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .comment-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-color), #0099ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: white;
+            font-weight: 600;
+        }
+
+        .comment-author-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .comment-author-name {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .comment-author-email {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .comment-date {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .comment-content {
+            line-height: 1.6;
+            margin-bottom: var(--spacing-sm);
+            word-break: break-word;
+        }
+
+        .comment-actions {
+            display: flex;
+            gap: var(--spacing-sm);
+            justify-content: flex-end;
+        }
+
+        .comment-action-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: var(--transition);
+        }
+
+        .comment-action-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--text-primary);
+        }
+
+        .comment-action-btn.delete:hover {
+            color: #ff5555;
+            background: rgba(255, 50, 50, 0.1);
+        }
+
+        .empty-comments {
+            text-align: center;
+            padding: var(--spacing-xl);
+            color: var(--text-secondary);
+        }
+
+        .empty-comments i {
+            font-size: 48px;
+            margin-bottom: var(--spacing-md);
+            opacity: 0.5;
         }
 
         /* Админ-панель с мобильной адаптацией */
@@ -996,6 +1190,64 @@
             }
         }
 
+        /* Табы в модальном окне аутентификации */
+        .auth-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--glass-border);
+            margin-bottom: var(--spacing-lg);
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: var(--spacing-md);
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            text-align: center;
+        }
+
+        .auth-tab.active {
+            color: var(--accent-color);
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        .auth-tab:hover:not(.active) {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
+
+        .auth-divider {
+            display: flex;
+            align-items: center;
+            margin: var(--spacing-lg) 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+
+        .auth-divider::before,
+        .auth-divider::after {
+            content: "";
+            flex: 1;
+            height: 1px;
+            background: var(--glass-border);
+        }
+
+        .auth-divider span {
+            padding: 0 var(--spacing-md);
+        }
+
         /* Лоадер */
         .loader {
             text-align: center;
@@ -1162,6 +1414,10 @@
                 border-color: rgba(0, 200, 255, 0.4);
                 color: var(--accent-color);
             }
+            
+            .news-card:hover .read-more {
+                transform: none;
+            }
         }
 
         /* Мелкие экраны (до 360px) */
@@ -1211,6 +1467,65 @@
         </div>
     </div>
 
+    <!-- Модальное окно аутентификации -->
+    <div id="authModal" class="modal-overlay">
+        <div class="modal glass">
+            <div class="modal-header">
+                <h3 class="modal-title">Вход / Регистрация</h3>
+                <button class="modal-close" onclick="closeAuthModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="auth-tabs">
+                    <button class="auth-tab active" data-tab="login">Вход</button>
+                    <button class="auth-tab" data-tab="register">Регистрация</button>
+                </div>
+                
+                <!-- Форма входа -->
+                <form id="loginForm" class="auth-form active">
+                    <div class="form-group">
+                        <label for="loginEmail" class="form-label">Email</label>
+                        <input type="email" id="loginEmail" class="form-input" placeholder="email@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword" class="form-label">Пароль</label>
+                        <input type="password" id="loginPassword" class="form-input" placeholder="Ваш пароль" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                        <i class="fas fa-sign-in-alt"></i> Войти
+                    </button>
+                </form>
+                
+                <!-- Форма регистрации -->
+                <form id="registerForm" class="auth-form">
+                    <div class="form-group">
+                        <label for="registerEmail" class="form-label">Email</label>
+                        <input type="email" id="registerEmail" class="form-input" placeholder="email@example.com" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword" class="form-label">Пароль</label>
+                        <input type="password" id="registerPassword" class="form-input" placeholder="Минимум 6 символов" minlength="6" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="registerConfirmPassword" class="form-label">Подтвердите пароль</label>
+                        <input type="password" id="registerConfirmPassword" class="form-input" placeholder="Повторите пароль" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 10px;">
+                        <i class="fas fa-user-plus"></i> Зарегистрироваться
+                    </button>
+                </form>
+                
+                <div class="auth-divider">
+                    <span>или</span>
+                </div>
+                
+                <button id="googleLoginBtn" class="btn btn-google" style="width: 100%;">
+                    <img src="https://www.google.com/favicon.ico" alt="Google" style="width: 18px; height: 18px;">
+                    Войти через Google
+                </button>
+            </div>
+        </div>
+    </div>
+
     <header class="container">
         <div class="header-content">
             <a href="#/" class="logo">
@@ -1223,12 +1538,17 @@
                 <button id="adminBtn" class="btn btn-secondary hidden">
                     <i class="fas fa-cogs"></i> Управление
                 </button>
-                <button id="loginBtn" class="btn btn-secondary">
-                    <i class="fas fa-sign-in-alt"></i> Вход
+                <button id="authBtn" class="btn btn-secondary">
+                    <i class="fas fa-sign-in-alt"></i> Вход / Регистрация
                 </button>
-                <button id="logoutBtn" class="btn btn-secondary hidden">
-                    <i class="fas fa-sign-out-alt"></i> Выйти
-                </button>
+                <div id="userInfo" class="hidden" style="display: flex; align-items: center; gap: var(--spacing-sm);">
+                    <div style="font-size: 14px; color: var(--text-secondary);">
+                        <span id="userEmail"></span>
+                    </div>
+                    <button id="logoutBtn" class="btn btn-secondary">
+                        <i class="fas fa-sign-out-alt"></i> Выйти
+                    </button>
+                </div>
             </div>
         </div>
     </header>
@@ -1250,26 +1570,6 @@
                 <div class="loader">
                     <i class="fas fa-spinner"></i> Загрузка статьи...
                 </div>
-            </div>
-        </div>
-
-        <!-- Страница входа -->
-        <div id="loginPage" class="page">
-            <div class="glass form-container">
-                <h2 class="form-title">Вход в систему</h2>
-                <form id="loginForm">
-                    <div class="form-group">
-                        <label for="loginEmail" class="form-label">Email</label>
-                        <input type="email" id="loginEmail" class="form-input" placeholder="admin@example.com" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="loginPassword" class="form-label">Пароль</label>
-                        <input type="password" id="loginPassword" class="form-input" placeholder="Ваш пароль" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%;">
-                        <i class="fas fa-sign-in-alt"></i> Войти
-                    </button>
-                </form>
             </div>
         </div>
 
@@ -1346,9 +1646,12 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { 
             getAuth, 
+            createUserWithEmailAndPassword,
             signInWithEmailAndPassword, 
             signOut, 
-            onAuthStateChanged 
+            onAuthStateChanged,
+            GoogleAuthProvider,
+            signInWithPopup
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { 
             getFirestore, 
@@ -1362,7 +1665,8 @@
             query, 
             orderBy, 
             onSnapshot,
-            getDocs
+            getDocs,
+            where
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -1378,6 +1682,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        const googleProvider = new GoogleAuthProvider();
 
         // Список админов
         const allowedAdmins = [
@@ -1397,6 +1702,11 @@
             "Яндекс",
             "Google"
         ];
+
+        // Глобальные переменные
+        let currentPostToDelete = null;
+        let isEditing = false;
+        let currentArticleId = null;
 
         // Глобальная функция для возврата на главную
         window.goToHomePage = function() {
@@ -1425,13 +1735,10 @@
                 if (hash === '' || hash === '/') {
                     document.getElementById('homePage').classList.add('active');
                     loadNewsFeed();
-                } else if (hash === '/login') {
-                    document.getElementById('loginPage').classList.add('active');
                 } else if (hash === '/admin') {
                     document.getElementById('adminPage').classList.add('active');
                     if (window.currentUser && allowedAdmins.includes(window.currentUser.email)) {
                         loadPostsList();
-                        // Инициализируем кастомные теги при переходе в админку
                         initCustomTags();
                     }
                 } else {
@@ -1449,10 +1756,6 @@
                 return window.location.hash.substring(1) || '/';
             }
         };
-
-        // Глобальные переменные
-        let currentPostToDelete = null;
-        let isEditing = false;
 
         // Утилиты
         function showNotification(message, type = 'success') {
@@ -1502,6 +1805,50 @@
             }
         }
 
+        function formatCommentDate(timestamp) {
+            if (!timestamp) return '';
+            try {
+                const date = timestamp.toDate();
+                const now = new Date();
+                const diff = now - date;
+                
+                // Менее 1 минуты назад
+                if (diff < 60000) return 'только что';
+                
+                // Менее 1 часа назад
+                if (diff < 3600000) {
+                    const minutes = Math.floor(diff / 60000);
+                    return `${minutes} ${getRussianWord(minutes, ['минуту', 'минуты', 'минут'])} назад`;
+                }
+                
+                // Менее 1 дня назад
+                if (diff < 86400000) {
+                    const hours = Math.floor(diff / 3600000);
+                    return `${hours} ${getRussianWord(hours, ['час', 'часа', 'часов'])} назад`;
+                }
+                
+                // Менее 1 недели назад
+                if (diff < 604800000) {
+                    const days = Math.floor(diff / 86400000);
+                    return `${days} ${getRussianWord(days, ['день', 'дня', 'дней'])} назад`;
+                }
+                
+                // Более недели - показываем дату
+                return new Intl.DateTimeFormat('ru-RU', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric'
+                }).format(date);
+            } catch (error) {
+                return '';
+            }
+        }
+
+        function getRussianWord(number, words) {
+            const cases = [2, 0, 1, 1, 1, 2];
+            return words[(number % 100 > 4 && number % 100 < 20) ? 2 : cases[(number % 10 < 5) ? number % 10 : 5]];
+        }
+
         function generateSlug(title) {
             if (!title || typeof title !== 'string') {
                 console.warn('Некорректный заголовок для генерации slug:', title);
@@ -1513,6 +1860,15 @@
                 .replace(/\s+/g, '-')
                 .replace(/--+/g, '-')
                 .trim();
+        }
+
+        function getInitials(email) {
+            if (!email) return '?';
+            const name = email.split('@')[0];
+            if (name.length >= 2) {
+                return name.substring(0, 2).toUpperCase();
+            }
+            return name.charAt(0).toUpperCase();
         }
 
         // Функция для обработки ссылок (разделение по запятым)
@@ -1737,7 +2093,7 @@
             return getSelectedCustomTags();
         }
 
-        // Модальное окно
+        // Модальные окна
         function openModal() {
             document.getElementById('deleteModal').classList.add('active');
         }
@@ -1748,6 +2104,17 @@
         }
 
         window.closeModal = closeModal;
+
+        function openAuthModal() {
+            document.getElementById('authModal').classList.add('active');
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.remove('active');
+            // Сбрасываем формы
+            document.getElementById('loginForm').reset();
+            document.getElementById('registerForm').reset();
+        }
 
         // Лента новостей
         function renderNewsCard(post, index) {
@@ -1775,7 +2142,7 @@
                     <div class="card-date">${formatDate(post.createdAt)}</div>
                     ${tagsHtml}
                     <p class="card-description">${post.description || 'Нет описания'}</p>
-                    <div style="color: var(--accent-color); font-weight: 600;">
+                    <div class="read-more">
                         Читать полностью <i class="fas fa-arrow-right"></i>
                     </div>
                     ${adminActions}
@@ -1858,7 +2225,7 @@
             }
         }
 
-        // Загрузка статьи - ИСПРАВЛЕННАЯ ВЕРСИЯ
+        // Загрузка статьи с комментариями
         async function loadArticle(slug) {
             const articleContent = document.getElementById('articleContent');
             
@@ -1931,6 +2298,7 @@
                     return;
                 }
 
+                currentArticleId = foundArticle.id;
                 const content = foundArticle.content || foundArticle.description || 'Нет содержимого';
                 const sourcesHtml = renderSources(foundArticle.url);
                 const tagsHtml = renderTags(foundArticle.tags || [], true);
@@ -1970,7 +2338,13 @@
                         ${sourcesHtml}
                     </div>
                     ${adminActions}
+                    <div id="commentsSection" class="comments-section">
+                        <!-- Комментарии будут загружены здесь -->
+                    </div>
                 `;
+
+                // Загружаем комментарии
+                loadComments(foundArticle.id);
 
             } catch (error) {
                 console.error("Ошибка загрузки статьи:", error);
@@ -1986,6 +2360,197 @@
                 `;
             }
         }
+
+        // Загрузка комментариев
+        async function loadComments(postId) {
+            const commentsSection = document.getElementById('commentsSection');
+            if (!commentsSection) return;
+
+            try {
+                const commentsQuery = query(
+                    collection(db, "comments"), 
+                    where("postId", "==", postId),
+                    orderBy("createdAt", "desc")
+                );
+                
+                const querySnapshot = await getDocs(commentsQuery);
+                const comments = [];
+                
+                querySnapshot.forEach(doc => {
+                    const data = doc.data();
+                    comments.push({
+                        id: doc.id,
+                        ...data
+                    });
+                });
+
+                const isAuthenticated = !!window.currentUser;
+                const isAdmin = window.currentUser && allowedAdmins.includes(window.currentUser.email);
+                
+                // Форма комментария (только для авторизованных)
+                let commentForm = '';
+                if (isAuthenticated) {
+                    commentForm = `
+                        <div class="comment-form">
+                            <textarea id="commentText" class="comment-input" placeholder="Напишите ваш комментарий..." rows="3"></textarea>
+                            <div class="comment-form-footer">
+                                <div class="comment-count">${comments.length} комментариев</div>
+                                <button id="submitCommentBtn" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane"></i> Отправить
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    commentForm = `
+                        <div class="comment-form">
+                            <div style="text-align: center; padding: var(--spacing-md); background: rgba(255, 255, 255, 0.03); border-radius: var(--border-radius);">
+                                <p style="margin-bottom: var(--spacing-sm);">Чтобы оставить комментарий, пожалуйста, <a href="javascript:void(0)" onclick="openAuthModal()" style="color: var(--accent-color);">войдите или зарегистрируйтесь</a></p>
+                                <button onclick="openAuthModal()" class="btn btn-primary">
+                                    <i class="fas fa-sign-in-alt"></i> Войти / Зарегистрироваться
+                                </button>
+                            </div>
+                            <div class="comment-form-footer">
+                                <div class="comment-count">${comments.length} комментариев</div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // Список комментариев
+                let commentsList = '';
+                if (comments.length === 0) {
+                    commentsList = `
+                        <div class="empty-comments">
+                            <i class="far fa-comments"></i>
+                            <p>Пока нет комментариев. Будьте первым!</p>
+                        </div>
+                    `;
+                } else {
+                    commentsList = `
+                        <div class="comments-list">
+                            ${comments.map(comment => {
+                                const canDelete = isAdmin || (window.currentUser && window.currentUser.uid === comment.userId);
+                                return `
+                                    <div class="comment-item" id="comment-${comment.id}">
+                                        <div class="comment-header">
+                                            <div class="comment-author">
+                                                <div class="comment-avatar">${getInitials(comment.userEmail)}</div>
+                                                <div class="comment-author-info">
+                                                    <div class="comment-author-name">${comment.userEmail.split('@')[0]}</div>
+                                                    <div class="comment-author-email">${comment.userEmail}</div>
+                                                </div>
+                                            </div>
+                                            <div class="comment-date">${formatCommentDate(comment.createdAt)}</div>
+                                        </div>
+                                        <div class="comment-content">${comment.content.replace(/\n/g, '<br>')}</div>
+                                        ${canDelete ? `
+                                            <div class="comment-actions">
+                                                <button class="comment-action-btn delete" onclick="deleteComment('${comment.id}')">
+                                                    <i class="fas fa-trash"></i> Удалить
+                                                </button>
+                                            </div>
+                                        ` : ''}
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    `;
+                }
+
+                commentsSection.innerHTML = `
+                    <h3 class="comments-title">Комментарии</h3>
+                    ${commentForm}
+                    ${commentsList}
+                `;
+
+                // Добавляем обработчик отправки комментария
+                if (isAuthenticated) {
+                    document.getElementById('submitCommentBtn').addEventListener('click', submitComment);
+                }
+
+            } catch (error) {
+                console.error("Ошибка загрузки комментариев:", error);
+                commentsSection.innerHTML = `
+                    <h3 class="comments-title">Комментарии</h3>
+                    <div class="empty-comments">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p>Ошибка загрузки комментариев</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Отправка комментария
+        async function submitComment() {
+            const commentText = document.getElementById('commentText');
+            const text = commentText.value.trim();
+            
+            if (!text) {
+                showNotification('Введите текст комментария', 'error');
+                return;
+            }
+            
+            if (!window.currentUser) {
+                showNotification('Для отправки комментария необходимо войти в систему', 'error');
+                openAuthModal();
+                return;
+            }
+            
+            if (!currentArticleId) {
+                showNotification('Ошибка: статья не найдена', 'error');
+                return;
+            }
+            
+            try {
+                await addDoc(collection(db, "comments"), {
+                    postId: currentArticleId,
+                    userId: window.currentUser.uid,
+                    userEmail: window.currentUser.email,
+                    content: text,
+                    createdAt: serverTimestamp()
+                });
+                
+                commentText.value = '';
+                showNotification('Комментарий успешно добавлен', 'success');
+                
+                // Перезагружаем комментарии
+                loadComments(currentArticleId);
+                
+            } catch (error) {
+                console.error("Ошибка отправки комментария:", error);
+                showNotification('Ошибка отправки комментария', 'error');
+            }
+        }
+
+        // Удаление комментария
+        window.deleteComment = async function(commentId) {
+            if (!confirm('Вы уверены, что хотите удалить этот комментарий?')) {
+                return;
+            }
+            
+            try {
+                await deleteDoc(doc(db, "comments", commentId));
+                showNotification('Комментарий удален', 'success');
+                
+                // Удаляем комментарий из интерфейса
+                const commentElement = document.getElementById(`comment-${commentId}`);
+                if (commentElement) {
+                    commentElement.remove();
+                }
+                
+                // Обновляем счетчик комментариев
+                const commentCount = document.querySelector('.comment-count');
+                if (commentCount) {
+                    const currentCount = parseInt(commentCount.textContent) || 0;
+                    commentCount.textContent = `${Math.max(0, currentCount - 1)} комментариев`;
+                }
+                
+            } catch (error) {
+                console.error("Ошибка удаления комментария:", error);
+                showNotification('Ошибка удаления комментария', 'error');
+            }
+        };
 
         // Управление постами в админке
         async function loadPostsList() {
@@ -2090,14 +2655,14 @@
             }
         };
 
-        // Запрос на удаление
+        // Запрос на удаление поста
         window.deletePostPrompt = function(postId, event = null) {
             if (event) event.stopPropagation();
             currentPostToDelete = postId;
             openModal();
         };
 
-        // Подтверждение удаления
+        // Подтверждение удаления поста
         window.confirmDelete = async function() {
             if (!currentPostToDelete) return;
             
@@ -2157,10 +2722,8 @@
         // Инициализация приложения
         function initApp() {
             // Обработчики UI
-            document.getElementById('loginBtn').addEventListener('click', () => {
-                router.navigate('/login');
-            });
-
+            document.getElementById('authBtn').addEventListener('click', openAuthModal);
+            
             document.getElementById('adminBtn').addEventListener('click', () => {
                 router.navigate('/admin');
             });
@@ -2169,10 +2732,32 @@
                 try {
                     await signOut(auth);
                     showNotification('Вы успешно вышли из системы');
-                    router.navigate('/');
+                    closeAuthModal();
                 } catch (error) {
                     showNotification('Ошибка при выходе: ' + error.message, 'error');
                 }
+            });
+
+            // Обработчики модального окна аутентификации
+            document.querySelectorAll('.auth-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.dataset.tab;
+                    
+                    // Убираем активный класс у всех вкладок
+                    document.querySelectorAll('.auth-tab').forEach(t => {
+                        t.classList.remove('active');
+                    });
+                    
+                    // Добавляем активный класс текущей вкладке
+                    this.classList.add('active');
+                    
+                    // Показываем соответствующую форму
+                    document.querySelectorAll('.auth-form').forEach(form => {
+                        form.classList.remove('active');
+                    });
+                    
+                    document.getElementById(`${tabId}Form`).classList.add('active');
+                });
             });
 
             // Форма входа
@@ -2184,10 +2769,48 @@
                 try {
                     await signInWithEmailAndPassword(auth, email, password);
                     showNotification('Вход выполнен успешно!');
+                    closeAuthModal();
                     document.getElementById('loginForm').reset();
-                    router.navigate('/');
                 } catch (error) {
                     showNotification('Ошибка входа: ' + error.message, 'error');
+                }
+            });
+
+            // Форма регистрации
+            document.getElementById('registerForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('registerEmail').value;
+                const password = document.getElementById('registerPassword').value;
+                const confirmPassword = document.getElementById('registerConfirmPassword').value;
+                
+                if (password !== confirmPassword) {
+                    showNotification('Пароли не совпадают', 'error');
+                    return;
+                }
+                
+                if (password.length < 6) {
+                    showNotification('Пароль должен быть не менее 6 символов', 'error');
+                    return;
+                }
+                
+                try {
+                    await createUserWithEmailAndPassword(auth, email, password);
+                    showNotification('Регистрация успешна!');
+                    closeAuthModal();
+                    document.getElementById('registerForm').reset();
+                } catch (error) {
+                    showNotification('Ошибка регистрации: ' + error.message, 'error');
+                }
+            });
+
+            // Вход через Google
+            document.getElementById('googleLoginBtn').addEventListener('click', async () => {
+                try {
+                    await signInWithPopup(auth, googleProvider);
+                    showNotification('Вход через Google выполнен успешно!');
+                    closeAuthModal();
+                } catch (error) {
+                    showNotification('Ошибка входа через Google: ' + error.message, 'error');
                 }
             });
 
@@ -2200,7 +2823,7 @@
                 const description = document.getElementById('postDescription').value.trim();
                 const content = document.getElementById('postContent').value.trim();
                 const urlInput = document.getElementById('postUrl').value.trim();
-                const selectedTags = getSelectedTags(); // Используем кастомный интерфейс
+                const selectedTags = getSelectedTags();
                 
                 // Валидация
                 if (!title || title.length < 3) {
@@ -2224,10 +2847,7 @@
                 }
                 
                 // Подготавливаем данные для сохранения
-                // Сохраняем как массив ссылок, если они есть
                 const urlData = urls.length > 0 ? urls : '';
-                
-                // Подготавливаем теги
                 const tagsData = selectedTags.length > 0 ? selectedTags : [];
                 
                 try {
@@ -2308,22 +2928,22 @@
 
             // Аутентификация
             onAuthStateChanged(auth, (user) => {
-                const loginBtn = document.getElementById('loginBtn');
-                const logoutBtn = document.getElementById('logoutBtn');
+                const authBtn = document.getElementById('authBtn');
+                const userInfo = document.getElementById('userInfo');
+                const userEmail = document.getElementById('userEmail');
                 const adminBtn = document.getElementById('adminBtn');
                 
                 window.currentUser = user;
                 
                 if (user) {
+                    authBtn.classList.add('hidden');
+                    userInfo.classList.remove('hidden');
+                    userEmail.textContent = user.email;
+                    
                     const isAdmin = allowedAdmins.includes(user.email);
-                    
-                    loginBtn.classList.add('hidden');
-                    logoutBtn.classList.remove('hidden');
-                    
                     if (isAdmin) {
                         adminBtn.classList.remove('hidden');
                         document.getElementById('postsManagement').classList.remove('hidden');
-                        // Инициализируем кастомные теги
                         initCustomTags();
                     } else {
                         adminBtn.classList.add('hidden');
@@ -2334,12 +2954,20 @@
                         }
                     }
                 } else {
-                    loginBtn.classList.remove('hidden');
-                    logoutBtn.classList.add('hidden');
+                    authBtn.classList.remove('hidden');
+                    userInfo.classList.add('hidden');
                     adminBtn.classList.add('hidden');
                     document.getElementById('postsManagement').classList.add('hidden');
                     if (router.getCurrentPath() === '/admin') {
-                        router.navigate('/login');
+                        router.navigate('/');
+                    }
+                }
+                
+                // Если открыта статья, перезагружаем комментарии
+                if (router.getCurrentPath() !== '/' && router.getCurrentPath() !== '/admin') {
+                    const slug = router.getCurrentPath().substring(1);
+                    if (currentArticleId) {
+                        loadComments(currentArticleId);
                     }
                 }
             });
