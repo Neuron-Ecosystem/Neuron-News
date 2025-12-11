@@ -1165,7 +1165,7 @@
             updateDoc,
             deleteDoc,
             doc,
-            getDoc, // ИСПРАВЛЕНО: Добавлен импорт getDoc
+            getDoc,
             serverTimestamp, 
             query, 
             orderBy, 
@@ -1192,6 +1192,15 @@
             "admin@example.com",
             "test@test.ru"
         ];
+
+        // Глобальная функция для возврата на главную
+        window.goToHomePage = function() {
+            if (typeof router !== 'undefined' && router.navigate) {
+                router.navigate('/');
+            } else {
+                window.location.hash = '/';
+            }
+        };
 
         // Hash-based Router
         const router = {
@@ -1416,7 +1425,7 @@
             }
         }
 
-        // Загрузка статьи
+        // Загрузка статьи - ИСПРАВЛЕННАЯ ВЕРСИЯ
         async function loadArticle(slug) {
             const articleContent = document.getElementById('articleContent');
             
@@ -1425,8 +1434,8 @@
                     <div class="glass empty-state">
                         <i class="fas fa-exclamation-triangle"></i>
                         <p>Статья не найдена</p>
-                        <button id="backToFeed" class="btn btn-secondary" style="margin-top: 20px;">
-                            <i class="fas fa-arrow-left"></i> Назад к ленте
+                        <button class="btn btn-secondary" onclick="goToHomePage()" style="margin-top: 20px;">
+                            <i class="fas fa-arrow-left"></i> Вернуться на главную
                         </button>
                     </div>
                 `;
@@ -1479,7 +1488,7 @@
                             <i class="fas fa-exclamation-triangle"></i>
                             <h2>Статья не найдена</h2>
                             <p>Запрошенная статья не существует или была удалена.</p>
-                            <button id="backToFeed" class="btn btn-secondary" style="margin-top: 20px;">
+                            <button class="btn btn-secondary" onclick="goToHomePage()" style="margin-top: 20px;">
                                 <i class="fas fa-arrow-left"></i> Вернуться на главную
                             </button>
                         </div>
@@ -1513,7 +1522,7 @@
                             <i class="far fa-calendar"></i>
                             ${formatDate(foundArticle.createdAt)}
                         </div>
-                        <button id="backToFeed" class="btn btn-secondary">
+                        <button class="btn btn-secondary" onclick="goToHomePage()">
                             <i class="fas fa-arrow-left"></i> Назад к ленте
                         </button>
                     </div>
@@ -1532,10 +1541,6 @@
                     ${adminActions}
                 `;
 
-                document.getElementById('backToFeed').addEventListener('click', () => {
-                    router.navigate('/');
-                });
-
             } catch (error) {
                 console.error("Ошибка загрузки статьи:", error);
                 articleContent.innerHTML = `
@@ -1543,7 +1548,7 @@
                         <i class="fas fa-exclamation-triangle"></i>
                         <h2>Ошибка загрузки</h2>
                         <p>Произошла ошибка при загрузке статьи. Пожалуйста, попробуйте позже.</p>
-                        <button id="backToFeed" class="btn btn-secondary" style="margin-top: 20px;">
+                        <button class="btn btn-secondary" onclick="goToHomePage()" style="margin-top: 20px;">
                             <i class="fas fa-arrow-left"></i> Вернуться на главную
                         </button>
                     </div>
@@ -1607,7 +1612,6 @@
             if (event) event.stopPropagation();
             
             try {
-                // Используем getDoc для получения документа
                 const postRef = doc(db, "posts", postId);
                 const postDoc = await getDoc(postRef);
                 
