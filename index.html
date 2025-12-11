@@ -501,6 +501,50 @@
             }
         }
 
+        /* Стили для списка источников в статье */
+        .sources-list {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sources-list h4 {
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .source-item {
+            margin-bottom: 8px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            border-left: 3px solid var(--accent-color);
+            transition: var(--transition);
+        }
+
+        .source-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .source-link {
+            color: var(--accent-color);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            word-break: break-all;
+        }
+
+        .source-link:hover {
+            text-decoration: underline;
+        }
+
+        .source-link i {
+            font-size: 12px;
+        }
+
         /* Админ-панель с мобильной адаптацией */
         .form-container {
             max-width: 600px;
@@ -1123,8 +1167,8 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="postUrl" class="form-label">Внешняя ссылка (опционально)</label>
-                        <input type="url" id="postUrl" class="form-input" placeholder="https://example.com/article">
+                        <label for="postUrl" class="form-label">Источник(-и) (опционально)</label>
+                        <input type="text" id="postUrl" class="form-input" placeholder="https://example.com/article, https://another.com/source (разделяйте ссылки запятыми)">
                     </div>
                     
                     <div class="form-actions">
@@ -1306,6 +1350,69 @@
                 .replace(/\s+/g, '-')
                 .replace(/--+/g, '-')
                 .trim();
+        }
+
+        // Функция для обработки ссылок (разделение по запятым)
+        function parseUrls(urlInput) {
+            if (!urlInput || typeof urlInput !== 'string') return [];
+            
+            return urlInput
+                .split(',')
+                .map(url => url.trim())
+                .filter(url => url.length > 0 && (url.startsWith('http://') || url.startsWith('https://')));
+        }
+
+        // Функция для форматирования ссылок в строку для редактирования
+        function formatUrlsForEdit(urls) {
+            if (Array.isArray(urls)) {
+                return urls.join(', ');
+            } else if (typeof urls === 'string') {
+                return urls;
+            }
+            return '';
+        }
+
+        // Функция для отображения списка источников в статье
+        function renderSources(urls) {
+            if (!urls || (Array.isArray(urls) && urls.length === 0) || (typeof urls === 'string' && urls.trim() === '')) {
+                return '';
+            }
+            
+            let urlArray = [];
+            if (Array.isArray(urls)) {
+                urlArray = urls;
+            } else if (typeof urls === 'string') {
+                urlArray = parseUrls(urls);
+            }
+            
+            if (urlArray.length === 0) return '';
+            
+            if (urlArray.length === 1) {
+                return `
+                    <p style="margin-top: 30px;">
+                        <strong>Источник:</strong> 
+                        <a href="${urlArray[0]}" target="_blank" rel="noopener noreferrer" style="color: var(--accent-color);">
+                            ${urlArray[0]}
+                        </a>
+                    </p>
+                `;
+            }
+            
+            // Для нескольких источников
+            const sourcesHtml = urlArray.map(url => `
+                <div class="source-item">
+                    <a href="${url}" target="_blank" rel="noopener noreferrer" class="source-link">
+                        <i class="fas fa-external-link-alt"></i> ${url}
+                    </a>
+                </div>
+            `).join('');
+            
+            return `
+                <div class="sources-list">
+                    <h4>Источники:</h4>
+                    ${sourcesHtml}
+                </div>
+            `;
         }
 
         // Модальное окно
@@ -1497,6 +1604,7 @@
                 }
 
                 const content = foundArticle.content || foundArticle.description || 'Нет содержимого';
+                const sourcesHtml = renderSources(foundArticle.url);
                 const isAdmin = window.currentUser && allowedAdmins.includes(window.currentUser.email);
                 
                 let adminActions = '';
@@ -1529,14 +1637,7 @@
                     <h1 class="article-title">${foundArticle.title}</h1>
                     <div class="article-content">
                         ${content.replace(/\n/g, '<br>')}
-                        ${foundArticle.url ? `
-                            <p style="margin-top: 30px;">
-                                <strong>Источник:</strong> 
-                                <a href="${foundArticle.url}" target="_blank" rel="noopener noreferrer" style="color: var(--accent-color);">
-                                    ${foundArticle.url}
-                                </a>
-                            </p>
-                        ` : ''}
+                        ${sourcesHtml}
                     </div>
                     ${adminActions}
                 `;
@@ -1624,7 +1725,7 @@
                     document.getElementById('postTitle').value = data.title || '';
                     document.getElementById('postDescription').value = data.description || '';
                     document.getElementById('postContent').value = data.content || '';
-                    document.getElementById('postUrl').value = data.url || '';
+                    document.getElementById('postUrl').value = formatUrlsForEdit(data.url || '');
                     
                     // Меняем интерфейс
                     document.getElementById('formTitle').textContent = 'Редактировать публикацию';
@@ -1759,7 +1860,7 @@
                 const title = document.getElementById('postTitle').value.trim();
                 const description = document.getElementById('postDescription').value.trim();
                 const content = document.getElementById('postContent').value.trim();
-                const url = document.getElementById('postUrl').value.trim();
+                const urlInput = document.getElementById('postUrl').value.trim();
                 
                 // Валидация
                 if (!title || title.length < 3) {
@@ -1772,6 +1873,20 @@
                     return;
                 }
                 
+                // Обрабатываем ссылки
+                const urls = parseUrls(urlInput);
+                
+                // Проверяем валидность ссылок
+                const invalidUrls = urls.filter(url => !url.startsWith('http://') && !url.startsWith('https://'));
+                if (invalidUrls.length > 0) {
+                    showNotification('Некорректные ссылки. Убедитесь, что все ссылки начинаются с http:// или https://', 'error');
+                    return;
+                }
+                
+                // Подготавливаем данные для сохранения
+                // Сохраняем как массив ссылок, если они есть
+                const urlData = urls.length > 0 ? urls : '';
+                
                 try {
                     if (isEditing && postId) {
                         // Редактирование существующего поста
@@ -1779,7 +1894,7 @@
                             title,
                             description,
                             content: content || description,
-                            url: url || ''
+                            url: urlData
                         });
                         
                         showNotification('Новость успешно обновлена!', 'success');
@@ -1789,7 +1904,7 @@
                             title,
                             description,
                             content: content || description,
-                            url: url || '',
+                            url: urlData,
                             createdAt: serverTimestamp()
                         });
                         
