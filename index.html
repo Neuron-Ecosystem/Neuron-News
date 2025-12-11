@@ -8,7 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧠</text></svg>">
     <style>
-        /* Все стили остаются без изменений */
+        /* Все стили остаются БЕЗ ИЗМЕНЕНИЙ */
         * {
             margin: 0;
             padding: 0;
@@ -428,7 +428,7 @@
 
     <header class="container">
         <div class="header-content">
-            <a href="#" id="homeLink" class="logo">
+            <a href="#/" class="logo">
                 <div class="logo-icon">
                     <i class="fas fa-brain"></i>
                 </div>
@@ -556,8 +556,46 @@
             "test@test.ru"
         ];
 
-        // Глобальный роутер
-        let router;
+        // Hash-based Router (работает без сервера)
+        const router = {
+            init() {
+                // Обработчик изменения hash
+                window.addEventListener('hashchange', () => {
+                    this.handleRoute();
+                });
+                
+                // Первоначальная загрузка
+                this.handleRoute();
+            },
+            
+            handleRoute() {
+                const hash = window.location.hash.substring(1); // Убираем #
+                
+                const pages = document.querySelectorAll('.page');
+                pages.forEach(page => page.classList.remove('active'));
+                
+                if (hash === '' || hash === '/') {
+                    document.getElementById('homePage').classList.add('active');
+                    loadNewsFeed();
+                } else if (hash === '/login') {
+                    document.getElementById('loginPage').classList.add('active');
+                } else if (hash === '/admin') {
+                    document.getElementById('adminPage').classList.add('active');
+                } else {
+                    document.getElementById('articlePage').classList.add('active');
+                    const slug = hash.startsWith('/') ? hash.substring(1) : hash;
+                    loadArticle(slug);
+                }
+            },
+            
+            navigate(path) {
+                window.location.hash = path;
+            },
+            
+            getCurrentPath() {
+                return window.location.hash.substring(1) || '/';
+            }
+        };
 
         // Утилиты
         function showNotification(message, type = 'success') {
@@ -606,18 +644,11 @@
                 .trim();
         }
 
-        // Функция для клика по карточке (будет глобальной)
-        window.openArticle = function(slug) {
-            if (router) {
-                router.navigate('/' + slug);
-            }
-        };
-
         // Лента новостей
         function renderNewsCard(post, index) {
             const slug = generateSlug(post.title || 'Без названия');
             return `
-                <div class="glass news-card" style="--card-index: ${index};" onclick="openArticle('${slug}')">
+                <div class="glass news-card" style="--card-index: ${index};" data-slug="${slug}">
                     <h3 class="card-title">${post.title || 'Без названия'}</h3>
                     <div class="card-date">${formatDate(post.createdAt)}</div>
                     <p class="card-description">${post.description || 'Нет описания'}</p>
@@ -637,10 +668,8 @@
                     snapshot.forEach(doc => {
                         try {
                             const data = doc.data();
-                            // Более мягкая проверка - если нет title, используем ID
                             if (!data.title) {
                                 console.warn('Пост с отсутствующим заголовком:', doc.id);
-                                // Вместо пропуска, создаем пост с заглушками
                                 posts.push({ 
                                     id: doc.id, 
                                     title: `Новость ${doc.id.substring(0, 8)}...`,
@@ -679,6 +708,14 @@
                     newsFeed.innerHTML = posts.map((post, index) => 
                         renderNewsCard(post, index)
                     ).join('');
+                    
+                    // Добавляем обработчики клика после рендера
+                    document.querySelectorAll('.news-card').forEach(card => {
+                        card.addEventListener('click', function() {
+                            const slug = this.getAttribute('data-slug');
+                            router.navigate(`/${slug}`);
+                        });
+                    });
                 }, (error) => {
                     console.error("Ошибка подписки на новости:", error);
                     document.getElementById('newsFeed').innerHTML = `
@@ -703,7 +740,7 @@
                     <div class="glass empty-state">
                         <i class="fas fa-exclamation-triangle"></i>
                         <p>Статья не найдена</p>
-                        <button onclick="window.router ? window.router.navigate('/') : location.href = '/';" class="btn btn-secondary" style="margin-top: 20px;">
+                        <button id="backToFeed" class="btn btn-secondary" style="margin-top: 20px;">
                             <i class="fas fa-arrow-left"></i> Назад к ленте
                         </button>
                     </div>
@@ -758,7 +795,7 @@
                             <i class="fas fa-exclamation-triangle"></i>
                             <h2>Статья не найдена</h2>
                             <p>Запрошенная статья не существует или была удалена.</p>
-                            <button onclick="window.router ? window.router.navigate('/') : location.href = '/';" class="btn btn-secondary" style="margin-top: 20px;">
+                            <button id="backToFeed" class="btn btn-secondary" style="margin-top: 20px;">
                                 <i class="fas fa-arrow-left"></i> Вернуться на главную
                             </button>
                         </div>
@@ -794,11 +831,7 @@
 
                 // Назначим обработчик для кнопки "Назад к ленте"
                 document.getElementById('backToFeed').addEventListener('click', () => {
-                    if (router) {
-                        router.navigate('/');
-                    } else {
-                        window.location.href = '/';
-                    }
+                    router.navigate('/');
                 });
 
             } catch (error) {
@@ -808,7 +841,7 @@
                         <i class="fas fa-exclamation-triangle"></i>
                         <h2>Ошибка загрузки</h2>
                         <p>Произошла ошибка при загрузке статьи. Пожалуйста, попробуйте позже.</p>
-                        <button onclick="window.router ? window.router.navigate('/') : location.href = '/';" class="btn btn-secondary" style="margin-top: 20px;">
+                        <button id="backToFeed" class="btn btn-secondary" style="margin-top: 20px;">
                             <i class="fas fa-arrow-left"></i> Вернуться на главную
                         </button>
                     </div>
@@ -818,57 +851,7 @@
 
         // Инициализация приложения
         function initApp() {
-            // Роутер
-            router = {
-                currentPath: window.location.pathname,
-                
-                init() {
-                    // Обработка навигации
-                    window.addEventListener('popstate', () => {
-                        this.navigate(window.location.pathname, false);
-                    });
-                    
-                    // Начальная навигация
-                    this.navigate(this.currentPath || '/', false);
-                },
-                
-                navigate(path, updateHistory = true) {
-                    if (updateHistory) {
-                        window.history.pushState({}, '', path);
-                    }
-                    
-                    this.currentPath = path;
-                    this.renderPage();
-                },
-                
-                renderPage() {
-                    const path = this.currentPath;
-                    const pages = document.querySelectorAll('.page');
-                    pages.forEach(page => page.classList.remove('active'));
-                    
-                    if (path === '/' || path === '') {
-                        document.getElementById('homePage').classList.add('active');
-                        loadNewsFeed();
-                    } else if (path === '/login') {
-                        document.getElementById('loginPage').classList.add('active');
-                    } else if (path === '/admin') {
-                        document.getElementById('adminPage').classList.add('active');
-                    } else {
-                        document.getElementById('articlePage').classList.add('active');
-                        loadArticle(path.substring(1)); // Убираем начальный слэш
-                    }
-                }
-            };
-
-            // Сделаем роутер глобально доступным
-            window.router = router;
-
             // Обработчики UI
-            document.getElementById('homeLink').addEventListener('click', (e) => {
-                e.preventDefault();
-                router.navigate('/');
-            });
-
             document.getElementById('loginBtn').addEventListener('click', () => {
                 router.navigate('/login');
             });
@@ -935,9 +918,7 @@
                     document.getElementById('postForm').reset();
                     
                     const slug = generateSlug(title);
-                    const articleUrl = `${window.location.origin}/${slug}`;
-                    
-                    showNotification(`Новость успешно опубликована!<br>Ссылка: ${articleUrl}`);
+                    showNotification('Новость успешно опубликована!');
                     
                     // Автоматический переход к статье
                     setTimeout(() => {
@@ -966,7 +947,7 @@
                         adminBtn.classList.remove('hidden');
                     } else {
                         adminBtn.classList.add('hidden');
-                        if (router.currentPath === '/admin') {
+                        if (router.getCurrentPath() === '/admin') {
                             router.navigate('/');
                             showNotification('У вас нет прав администратора', 'error');
                         }
@@ -975,7 +956,7 @@
                     loginBtn.classList.remove('hidden');
                     logoutBtn.classList.add('hidden');
                     adminBtn.classList.add('hidden');
-                    if (router.currentPath === '/admin') {
+                    if (router.getCurrentPath() === '/admin') {
                         router.navigate('/login');
                     }
                 }
@@ -985,7 +966,7 @@
             router.init();
             
             console.log('Neuron News инициализирован');
-            console.log('Текущий путь:', window.location.pathname);
+            console.log('Текущий hash:', window.location.hash);
         }
 
         // Запуск приложения
