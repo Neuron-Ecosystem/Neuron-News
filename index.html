@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧠</text></svg>">
     <style>
+        /* Все стили остаются без изменений */
         * {
             margin: 0;
             padding: 0;
@@ -427,7 +428,7 @@
 
     <header class="container">
         <div class="header-content">
-            <a href="#" onclick="router.navigate('/'); return false;" class="logo">
+            <a href="#" id="homeLink" class="logo">
                 <div class="logo-icon">
                     <i class="fas fa-brain"></i>
                 </div>
@@ -555,47 +556,8 @@
             "test@test.ru"
         ];
 
-        // Роутер
-        const router = {
-            currentPath: window.location.pathname,
-            
-            init() {
-                // Обработка навигации
-                window.addEventListener('popstate', () => {
-                    this.navigate(window.location.pathname, false);
-                });
-                
-                // Начальная навигация
-                this.navigate(this.currentPath || '/', false);
-            },
-            
-            navigate(path, updateHistory = true) {
-                if (updateHistory) {
-                    window.history.pushState({}, '', path);
-                }
-                
-                this.currentPath = path;
-                this.renderPage();
-            },
-            
-            renderPage() {
-                const path = this.currentPath;
-                const pages = document.querySelectorAll('.page');
-                pages.forEach(page => page.classList.remove('active'));
-                
-                if (path === '/' || path === '') {
-                    document.getElementById('homePage').classList.add('active');
-                    loadNewsFeed();
-                } else if (path === '/login') {
-                    document.getElementById('loginPage').classList.add('active');
-                } else if (path === '/admin') {
-                    document.getElementById('adminPage').classList.add('active');
-                } else {
-                    document.getElementById('articlePage').classList.add('active');
-                    loadArticle(path.substring(1)); // Убираем начальный слэш
-                }
-            }
-        };
+        // Глобальный роутер
+        let router;
 
         // Утилиты
         function showNotification(message, type = 'success') {
@@ -644,11 +606,18 @@
                 .trim();
         }
 
-        // Лента новостей - ИСПРАВЛЕННАЯ ВЕРСИЯ
+        // Функция для клика по карточке (будет глобальной)
+        window.openArticle = function(slug) {
+            if (router) {
+                router.navigate('/' + slug);
+            }
+        };
+
+        // Лента новостей
         function renderNewsCard(post, index) {
             const slug = generateSlug(post.title || 'Без названия');
             return `
-                <div class="glass news-card" style="--card-index: ${index};" onclick="router.navigate('/${slug}')">
+                <div class="glass news-card" style="--card-index: ${index};" onclick="openArticle('${slug}')">
                     <h3 class="card-title">${post.title || 'Без названия'}</h3>
                     <div class="card-date">${formatDate(post.createdAt)}</div>
                     <p class="card-description">${post.description || 'Нет описания'}</p>
@@ -668,15 +637,24 @@
                     snapshot.forEach(doc => {
                         try {
                             const data = doc.data();
-                            // Проверяем обязательные поля
-                            if (!data.title || !data.description) {
-                                console.warn('Пост с отсутствующими полями:', doc.id, data);
+                            // Более мягкая проверка - если нет title, используем ID
+                            if (!data.title) {
+                                console.warn('Пост с отсутствующим заголовком:', doc.id);
+                                // Вместо пропуска, создаем пост с заглушками
+                                posts.push({ 
+                                    id: doc.id, 
+                                    title: `Новость ${doc.id.substring(0, 8)}...`,
+                                    description: data.description || 'Описание отсутствует',
+                                    content: data.content || '',
+                                    url: data.url || '',
+                                    createdAt: data.createdAt || null
+                                });
                                 return;
                             }
                             posts.push({ 
                                 id: doc.id, 
                                 title: data.title || '',
-                                description: data.description || '',
+                                description: data.description || 'Нет описания',
                                 content: data.content || '',
                                 url: data.url || '',
                                 createdAt: data.createdAt || null
@@ -725,7 +703,7 @@
                     <div class="glass empty-state">
                         <i class="fas fa-exclamation-triangle"></i>
                         <p>Статья не найдена</p>
-                        <button onclick="router.navigate('/')" class="btn btn-secondary" style="margin-top: 20px;">
+                        <button onclick="window.router ? window.router.navigate('/') : location.href = '/';" class="btn btn-secondary" style="margin-top: 20px;">
                             <i class="fas fa-arrow-left"></i> Назад к ленте
                         </button>
                     </div>
@@ -757,12 +735,30 @@
                 });
 
                 if (!foundArticle) {
+                    // Попробуем найти по ID
+                    querySnapshot.forEach((doc) => {
+                        const data = doc.data();
+                        const articleSlug = generateSlug(data.title || `news-${doc.id}`);
+                        if (articleSlug === slug) {
+                            foundArticle = { 
+                                id: doc.id, 
+                                title: data.title || `Новость ${doc.id.substring(0, 8)}...`,
+                                description: data.description || 'Описание отсутствует',
+                                content: data.content || data.description || '',
+                                url: data.url || '',
+                                createdAt: data.createdAt || null
+                            };
+                        }
+                    });
+                }
+
+                if (!foundArticle) {
                     articleContent.innerHTML = `
                         <div class="glass empty-state">
                             <i class="fas fa-exclamation-triangle"></i>
                             <h2>Статья не найдена</h2>
                             <p>Запрошенная статья не существует или была удалена.</p>
-                            <button onclick="router.navigate('/')" class="btn btn-secondary" style="margin-top: 20px;">
+                            <button onclick="window.router ? window.router.navigate('/') : location.href = '/';" class="btn btn-secondary" style="margin-top: 20px;">
                                 <i class="fas fa-arrow-left"></i> Вернуться на главную
                             </button>
                         </div>
@@ -778,7 +774,7 @@
                             <i class="far fa-calendar"></i>
                             ${formatDate(foundArticle.createdAt)}
                         </div>
-                        <button onclick="router.navigate('/')" class="btn btn-secondary">
+                        <button id="backToFeed" class="btn btn-secondary">
                             <i class="fas fa-arrow-left"></i> Назад к ленте
                         </button>
                     </div>
@@ -796,6 +792,15 @@
                     </div>
                 `;
 
+                // Назначим обработчик для кнопки "Назад к ленте"
+                document.getElementById('backToFeed').addEventListener('click', () => {
+                    if (router) {
+                        router.navigate('/');
+                    } else {
+                        window.location.href = '/';
+                    }
+                });
+
             } catch (error) {
                 console.error("Ошибка загрузки статьи:", error);
                 articleContent.innerHTML = `
@@ -803,7 +808,7 @@
                         <i class="fas fa-exclamation-triangle"></i>
                         <h2>Ошибка загрузки</h2>
                         <p>Произошла ошибка при загрузке статьи. Пожалуйста, попробуйте позже.</p>
-                        <button onclick="router.navigate('/')" class="btn btn-secondary" style="margin-top: 20px;">
+                        <button onclick="window.router ? window.router.navigate('/') : location.href = '/';" class="btn btn-secondary" style="margin-top: 20px;">
                             <i class="fas fa-arrow-left"></i> Вернуться на главную
                         </button>
                     </div>
@@ -811,142 +816,180 @@
             }
         }
 
-        // Обработчики UI
-        document.getElementById('loginBtn').addEventListener('click', () => {
-            router.navigate('/login');
-        });
-
-        document.getElementById('adminBtn').addEventListener('click', () => {
-            router.navigate('/admin');
-        });
-
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
-            try {
-                await signOut(auth);
-                showNotification('Вы успешно вышли из системы');
-                router.navigate('/');
-            } catch (error) {
-                showNotification('Ошибка при выходе: ' + error.message, 'error');
-            }
-        });
-
-        // Форма входа
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-                showNotification('Вход выполнен успешно!');
-                document.getElementById('loginForm').reset();
-                router.navigate('/');
-            } catch (error) {
-                showNotification('Ошибка входа: ' + error.message, 'error');
-            }
-        });
-
-        // Форма создания поста - ИСПРАВЛЕННАЯ ВЕРСИЯ
-        document.getElementById('postForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const title = document.getElementById('postTitle').value.trim();
-            const description = document.getElementById('postDescription').value.trim();
-            const content = document.getElementById('postContent').value.trim();
-            const url = document.getElementById('postUrl').value.trim();
-            
-            // Валидация
-            if (!title || title.length < 3) {
-                showNotification('Заголовок должен быть не менее 3 символов', 'error');
-                return;
-            }
-            
-            if (!description || description.length < 10) {
-                showNotification('Описание должно быть не менее 10 символов', 'error');
-                return;
-            }
-            
-            try {
-                await addDoc(collection(db, "posts"), {
-                    title,
-                    description,
-                    content: content || description,
-                    url: url || '',
-                    createdAt: serverTimestamp()
-                });
+        // Инициализация приложения
+        function initApp() {
+            // Роутер
+            router = {
+                currentPath: window.location.pathname,
                 
-                document.getElementById('postForm').reset();
+                init() {
+                    // Обработка навигации
+                    window.addEventListener('popstate', () => {
+                        this.navigate(window.location.pathname, false);
+                    });
+                    
+                    // Начальная навигация
+                    this.navigate(this.currentPath || '/', false);
+                },
                 
-                const slug = generateSlug(title);
-                showNotification('Новость успешно опубликована!');
-                router.navigate('/');
-                
-                // Показываем ссылку на статью через alert
-                setTimeout(() => {
-                    const articleUrl = `${window.location.origin}/${slug}`;
-                    if (confirm(`Новость опубликована! Хотите перейти к статье?\n\nСсылка: ${articleUrl}`)) {
-                        router.navigate(`/${slug}`);
+                navigate(path, updateHistory = true) {
+                    if (updateHistory) {
+                        window.history.pushState({}, '', path);
                     }
-                }, 500);
+                    
+                    this.currentPath = path;
+                    this.renderPage();
+                },
                 
-            } catch (error) {
-                console.error('Ошибка публикации:', error);
-                showNotification('Ошибка публикации: ' + error.message, 'error');
-            }
-        });
+                renderPage() {
+                    const path = this.currentPath;
+                    const pages = document.querySelectorAll('.page');
+                    pages.forEach(page => page.classList.remove('active'));
+                    
+                    if (path === '/' || path === '') {
+                        document.getElementById('homePage').classList.add('active');
+                        loadNewsFeed();
+                    } else if (path === '/login') {
+                        document.getElementById('loginPage').classList.add('active');
+                    } else if (path === '/admin') {
+                        document.getElementById('adminPage').classList.add('active');
+                    } else {
+                        document.getElementById('articlePage').classList.add('active');
+                        loadArticle(path.substring(1)); // Убираем начальный слэш
+                    }
+                }
+            };
 
-        // Аутентификация
-        onAuthStateChanged(auth, (user) => {
-            const loginBtn = document.getElementById('loginBtn');
-            const logoutBtn = document.getElementById('logoutBtn');
-            const adminBtn = document.getElementById('adminBtn');
-            
-            if (user) {
-                const isAdmin = allowedAdmins.includes(user.email);
+            // Сделаем роутер глобально доступным
+            window.router = router;
+
+            // Обработчики UI
+            document.getElementById('homeLink').addEventListener('click', (e) => {
+                e.preventDefault();
+                router.navigate('/');
+            });
+
+            document.getElementById('loginBtn').addEventListener('click', () => {
+                router.navigate('/login');
+            });
+
+            document.getElementById('adminBtn').addEventListener('click', () => {
+                router.navigate('/admin');
+            });
+
+            document.getElementById('logoutBtn').addEventListener('click', async () => {
+                try {
+                    await signOut(auth);
+                    showNotification('Вы успешно вышли из системы');
+                    router.navigate('/');
+                } catch (error) {
+                    showNotification('Ошибка при выходе: ' + error.message, 'error');
+                }
+            });
+
+            // Форма входа
+            document.getElementById('loginForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
                 
-                loginBtn.classList.add('hidden');
-                logoutBtn.classList.remove('hidden');
+                try {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    showNotification('Вход выполнен успешно!');
+                    document.getElementById('loginForm').reset();
+                    router.navigate('/');
+                } catch (error) {
+                    showNotification('Ошибка входа: ' + error.message, 'error');
+                }
+            });
+
+            // Форма создания поста
+            document.getElementById('postForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
                 
-                if (isAdmin) {
-                    adminBtn.classList.remove('hidden');
+                const title = document.getElementById('postTitle').value.trim();
+                const description = document.getElementById('postDescription').value.trim();
+                const content = document.getElementById('postContent').value.trim();
+                const url = document.getElementById('postUrl').value.trim();
+                
+                // Валидация
+                if (!title || title.length < 3) {
+                    showNotification('Заголовок должен быть не менее 3 символов', 'error');
+                    return;
+                }
+                
+                if (!description || description.length < 10) {
+                    showNotification('Описание должно быть не менее 10 символов', 'error');
+                    return;
+                }
+                
+                try {
+                    await addDoc(collection(db, "posts"), {
+                        title,
+                        description,
+                        content: content || description,
+                        url: url || '',
+                        createdAt: serverTimestamp()
+                    });
+                    
+                    document.getElementById('postForm').reset();
+                    
+                    const slug = generateSlug(title);
+                    const articleUrl = `${window.location.origin}/${slug}`;
+                    
+                    showNotification(`Новость успешно опубликована!<br>Ссылка: ${articleUrl}`);
+                    
+                    // Автоматический переход к статье
+                    setTimeout(() => {
+                        router.navigate(`/${slug}`);
+                    }, 1000);
+                    
+                } catch (error) {
+                    console.error('Ошибка публикации:', error);
+                    showNotification('Ошибка публикации: ' + error.message, 'error');
+                }
+            });
+
+            // Аутентификация
+            onAuthStateChanged(auth, (user) => {
+                const loginBtn = document.getElementById('loginBtn');
+                const logoutBtn = document.getElementById('logoutBtn');
+                const adminBtn = document.getElementById('adminBtn');
+                
+                if (user) {
+                    const isAdmin = allowedAdmins.includes(user.email);
+                    
+                    loginBtn.classList.add('hidden');
+                    logoutBtn.classList.remove('hidden');
+                    
+                    if (isAdmin) {
+                        adminBtn.classList.remove('hidden');
+                    } else {
+                        adminBtn.classList.add('hidden');
+                        if (router.currentPath === '/admin') {
+                            router.navigate('/');
+                            showNotification('У вас нет прав администратора', 'error');
+                        }
+                    }
                 } else {
+                    loginBtn.classList.remove('hidden');
+                    logoutBtn.classList.add('hidden');
                     adminBtn.classList.add('hidden');
                     if (router.currentPath === '/admin') {
-                        router.navigate('/');
-                        showNotification('У вас нет прав администратора', 'error');
+                        router.navigate('/login');
                     }
                 }
-            } else {
-                loginBtn.classList.remove('hidden');
-                logoutBtn.classList.add('hidden');
-                adminBtn.classList.add('hidden');
-                if (router.currentPath === '/admin') {
-                    router.navigate('/login');
-                }
-            }
-        });
+            });
 
-        // Инициализация
-        document.addEventListener('DOMContentLoaded', () => {
+            // Инициализация роутера
             router.init();
             
-            // Проверяем наличие индекса
             console.log('Neuron News инициализирован');
-            console.log('Firebase проект:', firebaseConfig.projectId);
-            
-            // Для отладки: выводим список новостей при загрузке
-            setTimeout(() => {
-                const postsQuery = query(collection(db, "posts"));
-                getDocs(postsQuery).then(snapshot => {
-                    console.log('Всего новостей в базе:', snapshot.size);
-                    snapshot.forEach(doc => {
-                        console.log('Новость:', doc.id, doc.data());
-                    });
-                }).catch(error => {
-                    console.error('Ошибка проверки базы данных:', error);
-                });
-            }, 1000);
-        });
+            console.log('Текущий путь:', window.location.pathname);
+        }
+
+        // Запуск приложения
+        document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
 </html>
