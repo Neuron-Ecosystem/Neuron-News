@@ -377,6 +377,33 @@
             }
         }
 
+        /* Теги в карточках новостей */
+        .card-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: var(--spacing-md);
+            min-height: 24px;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 4px 10px;
+            background: rgba(0, 200, 255, 0.1);
+            border: 1px solid rgba(0, 200, 255, 0.2);
+            border-radius: 20px;
+            font-size: 12px;
+            color: var(--accent-color);
+            font-weight: 500;
+            transition: var(--transition);
+            white-space: nowrap;
+        }
+
+        .tag:hover {
+            background: rgba(0, 200, 255, 0.15);
+            transform: translateY(-1px);
+        }
+
         .card-actions {
             display: flex;
             gap: var(--spacing-xs);
@@ -501,6 +528,32 @@
             }
         }
 
+        /* Теги в статье */
+        .article-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .article-tag {
+            display: inline-block;
+            padding: 6px 14px;
+            background: rgba(0, 200, 255, 0.1);
+            border: 1px solid rgba(0, 200, 255, 0.2);
+            border-radius: 20px;
+            font-size: 14px;
+            color: var(--accent-color);
+            font-weight: 500;
+            transition: var(--transition);
+        }
+
+        .article-tag:hover {
+            background: rgba(0, 200, 255, 0.15);
+            transform: translateY(-1px);
+        }
+
         /* Стили для списка источников в статье */
         .sources-list {
             margin-top: 20px;
@@ -596,7 +649,7 @@
             font-weight: 500;
         }
 
-        .form-input, .form-textarea {
+        .form-input, .form-textarea, .form-select {
             width: 100%;
             padding: 16px;
             background: rgba(10, 10, 15, 0.5);
@@ -610,13 +663,13 @@
         }
 
         @media (max-width: 768px) {
-            .form-input, .form-textarea {
+            .form-input, .form-textarea, .form-select {
                 padding: 14px;
                 font-size: 16px;
             }
         }
 
-        .form-input:focus, .form-textarea:focus {
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
             outline: none;
             border-color: var(--accent-color);
             box-shadow: 0 0 0 3px rgba(0, 200, 255, 0.1);
@@ -631,6 +684,50 @@
             .form-textarea {
                 min-height: 120px;
             }
+        }
+
+        /* Стили для кастомного выбора тегов */
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .tag-option {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            user-select: none;
+        }
+
+        .tag-option:hover {
+            background: rgba(0, 200, 255, 0.1);
+            border-color: rgba(0, 200, 255, 0.2);
+            color: var(--accent-color);
+        }
+
+        .tag-option.selected {
+            background: rgba(0, 200, 255, 0.2);
+            border-color: rgba(0, 200, 255, 0.4);
+            color: var(--accent-color);
+            box-shadow: 0 0 10px rgba(0, 200, 255, 0.2);
+        }
+
+        .form-select[multiple] {
+            display: none; /* Скрываем стандартный select */
+        }
+
+        .select-hint {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 5px;
+            display: block;
         }
 
         .form-actions {
@@ -738,6 +835,21 @@
         .post-date {
             font-size: 12px;
             color: var(--text-secondary);
+        }
+
+        .post-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 6px;
+        }
+
+        .post-tag {
+            font-size: 10px;
+            padding: 2px 6px;
+            background: rgba(0, 200, 255, 0.1);
+            border-radius: 10px;
+            color: var(--accent-color);
         }
 
         .post-actions {
@@ -1038,6 +1150,18 @@
             .btn-primary:hover {
                 transform: none;
             }
+            
+            .tag-option:hover {
+                background: rgba(255, 255, 255, 0.05);
+                border-color: rgba(255, 255, 255, 0.1);
+                color: var(--text-secondary);
+            }
+            
+            .tag-option.selected:hover {
+                background: rgba(0, 200, 255, 0.2);
+                border-color: rgba(0, 200, 255, 0.4);
+                color: var(--accent-color);
+            }
         }
 
         /* Мелкие экраны (до 360px) */
@@ -1058,6 +1182,11 @@
             
             .article-title {
                 font-size: 22px;
+            }
+            
+            .tag-option {
+                padding: 6px 12px;
+                font-size: 12px;
             }
         }
     </style>
@@ -1171,6 +1300,25 @@
                         <input type="text" id="postUrl" class="form-input" placeholder="https://example.com/article, https://another.com/source (разделяйте ссылки запятыми)">
                     </div>
                     
+                    <div class="form-group">
+                        <label for="postTags" class="form-label">Теги (опционально)</label>
+                        <select id="postTags" class="form-select" multiple style="display: none;">
+                            <option value="AI">AI</option>
+                            <option value="IPhone">IPhone</option>
+                            <option value="Android">Android</option>
+                            <option value="Neuron Ecosystem">Neuron Ecosystem</option>
+                            <option value="Эксклюзив">Эксклюзив</option>
+                            <option value="Криптовалюта">Криптовалюта</option>
+                            <option value="IT">IT</option>
+                            <option value="Яндекс">Яндекс</option>
+                            <option value="Google">Google</option>
+                        </select>
+                        <div id="tagsContainer" class="tags-container">
+                            <!-- Теги будут сгенерированы JavaScript -->
+                        </div>
+                        <span class="select-hint">Нажмите на тег, чтобы выбрать или отменить выбор</span>
+                    </div>
+                    
                     <div class="form-actions">
                         <button type="button" id="cancelEdit" class="btn btn-secondary hidden">
                             <i class="fas fa-times"></i> Отмена
@@ -1237,6 +1385,19 @@
             "test@test.ru"
         ];
 
+        // Предопределенные теги
+        const AVAILABLE_TAGS = [
+            "AI",
+            "IPhone", 
+            "Android",
+            "Neuron Ecosystem",
+            "Эксклюзив",
+            "Криптовалюта",
+            "IT",
+            "Яндекс",
+            "Google"
+        ];
+
         // Глобальная функция для возврата на главную
         window.goToHomePage = function() {
             if (typeof router !== 'undefined' && router.navigate) {
@@ -1270,6 +1431,8 @@
                     document.getElementById('adminPage').classList.add('active');
                     if (window.currentUser && allowedAdmins.includes(window.currentUser.email)) {
                         loadPostsList();
+                        // Инициализируем кастомные теги при переходе в админку
+                        initCustomTags();
                     }
                 } else {
                     document.getElementById('articlePage').classList.add('active');
@@ -1415,6 +1578,165 @@
             `;
         }
 
+        // Функция для отображения тегов
+        function renderTags(tags, isInArticle = false) {
+            if (!tags || (Array.isArray(tags) && tags.length === 0) || (typeof tags === 'string' && tags.trim() === '')) {
+                return '';
+            }
+            
+            let tagArray = [];
+            if (Array.isArray(tags)) {
+                tagArray = tags;
+            } else if (typeof tags === 'string') {
+                // Если теги хранятся как строка, попробуем разбить по запятым
+                tagArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+            }
+            
+            if (tagArray.length === 0) return '';
+            
+            if (isInArticle) {
+                // Для статьи
+                const tagsHtml = tagArray.map(tag => `
+                    <span class="article-tag">${tag}</span>
+                `).join('');
+                
+                return `
+                    <div class="article-tags">
+                        ${tagsHtml}
+                    </div>
+                `;
+            } else {
+                // Для карточки новости
+                const tagsHtml = tagArray.map(tag => `
+                    <span class="tag">${tag}</span>
+                `).join('');
+                
+                return `
+                    <div class="card-tags">
+                        ${tagsHtml}
+                    </div>
+                `;
+            }
+        }
+
+        // Функция для отображения тегов в управлении постами
+        function renderTagsForManagement(tags) {
+            if (!tags || (Array.isArray(tags) && tags.length === 0) || (typeof tags === 'string' && tags.trim() === '')) {
+                return '';
+            }
+            
+            let tagArray = [];
+            if (Array.isArray(tags)) {
+                tagArray = tags;
+            } else if (typeof tags === 'string') {
+                tagArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+            }
+            
+            if (tagArray.length === 0) return '';
+            
+            const tagsHtml = tagArray.map(tag => `
+                <span class="post-tag">${tag}</span>
+            `).join('');
+            
+            return `
+                <div class="post-tags">
+                    ${tagsHtml}
+                </div>
+            `;
+        }
+
+        // Инициализация кастомных тегов
+        function initCustomTags() {
+            const tagsContainer = document.getElementById('tagsContainer');
+            if (!tagsContainer) return;
+            
+            // Очищаем контейнер
+            tagsContainer.innerHTML = '';
+            
+            // Создаем кнопки для каждого тега
+            AVAILABLE_TAGS.forEach(tag => {
+                const tagElement = document.createElement('div');
+                tagElement.className = 'tag-option';
+                tagElement.textContent = tag;
+                tagElement.dataset.value = tag;
+                
+                tagElement.addEventListener('click', function() {
+                    this.classList.toggle('selected');
+                    updateHiddenSelect();
+                });
+                
+                tagsContainer.appendChild(tagElement);
+            });
+        }
+
+        // Обновление скрытого select на основе выбранных кастомных тегов
+        function updateHiddenSelect() {
+            const tagsSelect = document.getElementById('postTags');
+            const selectedTags = getSelectedCustomTags();
+            
+            // Сбрасываем все выбранные опции
+            for (let option of tagsSelect.options) {
+                option.selected = false;
+            }
+            
+            // Устанавливаем выбранные теги
+            selectedTags.forEach(tag => {
+                for (let option of tagsSelect.options) {
+                    if (option.value === tag) {
+                        option.selected = true;
+                        break;
+                    }
+                }
+            });
+        }
+
+        // Получение выбранных тегов из кастомного интерфейса
+        function getSelectedCustomTags() {
+            const selectedTags = [];
+            const tagOptions = document.querySelectorAll('.tag-option.selected');
+            
+            tagOptions.forEach(option => {
+                selectedTags.push(option.dataset.value);
+            });
+            
+            return selectedTags;
+        }
+
+        // Установка выбранных тегов в кастомном интерфейсе
+        function setSelectedCustomTags(tags) {
+            if (!tags) return;
+            
+            let tagArray = [];
+            if (Array.isArray(tags)) {
+                tagArray = tags;
+            } else if (typeof tags === 'string') {
+                tagArray = tags.split(',').map(tag => tag.trim()).filter(tag => tag.length > 0);
+            }
+            
+            // Сбрасываем все выбранные теги
+            const tagOptions = document.querySelectorAll('.tag-option');
+            tagOptions.forEach(option => {
+                option.classList.remove('selected');
+            });
+            
+            // Устанавливаем выбранные теги
+            tagArray.forEach(tag => {
+                const tagOption = document.querySelector(`.tag-option[data-value="${tag}"]`);
+                if (tagOption) {
+                    tagOption.classList.add('selected');
+                }
+            });
+            
+            // Обновляем скрытый select
+            updateHiddenSelect();
+        }
+
+        // Получение выбранных тегов (совместимость со старой функцией)
+        function getSelectedTags() {
+            // Используем кастомный интерфейс
+            return getSelectedCustomTags();
+        }
+
         // Модальное окно
         function openModal() {
             document.getElementById('deleteModal').classList.add('active');
@@ -1431,6 +1753,7 @@
         function renderNewsCard(post, index) {
             const slug = generateSlug(post.title || 'Без названия');
             const isAdmin = window.currentUser && allowedAdmins.includes(window.currentUser.email);
+            const tagsHtml = renderTags(post.tags || []);
             
             let adminActions = '';
             if (isAdmin) {
@@ -1450,6 +1773,7 @@
                 <div class="glass news-card" style="--card-index: ${index};" data-slug="${slug}">
                     <h3 class="card-title">${post.title || 'Без названия'}</h3>
                     <div class="card-date">${formatDate(post.createdAt)}</div>
+                    ${tagsHtml}
                     <p class="card-description">${post.description || 'Нет описания'}</p>
                     <div style="color: var(--accent-color); font-weight: 600;">
                         Читать полностью <i class="fas fa-arrow-right"></i>
@@ -1476,6 +1800,7 @@
                                     description: data.description || 'Описание отсутствует',
                                     content: data.content || '',
                                     url: data.url || '',
+                                    tags: data.tags || [],
                                     createdAt: data.createdAt || null
                                 });
                                 return;
@@ -1486,6 +1811,7 @@
                                 description: data.description || 'Нет описания',
                                 content: data.content || '',
                                 url: data.url || '',
+                                tags: data.tags || [],
                                 createdAt: data.createdAt || null
                             });
                         } catch (error) {
@@ -1512,7 +1838,7 @@
                     document.querySelectorAll('.news-card').forEach(card => {
                         const slug = card.getAttribute('data-slug');
                         card.addEventListener('click', function(e) {
-                            if (!e.target.closest('.btn')) {
+                            if (!e.target.closest('.btn') && !e.target.closest('.tag')) {
                                 router.navigate(`/${slug}`);
                             }
                         });
@@ -1567,6 +1893,7 @@
                             description: data.description || '',
                             content: data.content || data.description || '',
                             url: data.url || '',
+                            tags: data.tags || [],
                             createdAt: data.createdAt || null
                         };
                     }
@@ -1583,6 +1910,7 @@
                                 description: data.description || 'Описание отсутствует',
                                 content: data.content || data.description || '',
                                 url: data.url || '',
+                                tags: data.tags || [],
                                 createdAt: data.createdAt || null
                             };
                         }
@@ -1605,6 +1933,7 @@
 
                 const content = foundArticle.content || foundArticle.description || 'Нет содержимого';
                 const sourcesHtml = renderSources(foundArticle.url);
+                const tagsHtml = renderTags(foundArticle.tags || [], true);
                 const isAdmin = window.currentUser && allowedAdmins.includes(window.currentUser.email);
                 
                 let adminActions = '';
@@ -1635,6 +1964,7 @@
                         </button>
                     </div>
                     <h1 class="article-title">${foundArticle.title}</h1>
+                    ${tagsHtml}
                     <div class="article-content">
                         ${content.replace(/\n/g, '<br>')}
                         ${sourcesHtml}
@@ -1677,11 +2007,13 @@
                 let html = '';
                 querySnapshot.forEach(doc => {
                     const data = doc.data();
+                    const tagsHtml = renderTagsForManagement(data.tags || []);
                     html += `
                         <div class="post-item" id="post-item-${doc.id}">
                             <div class="post-info">
                                 <div class="post-title">${data.title || 'Без названия'}</div>
                                 <div class="post-date">${formatShortDate(data.createdAt)}</div>
+                                ${tagsHtml}
                             </div>
                             <div class="post-actions">
                                 <button class="btn btn-warning" onclick="editPost('${doc.id}')">
@@ -1727,6 +2059,9 @@
                     document.getElementById('postContent').value = data.content || '';
                     document.getElementById('postUrl').value = formatUrlsForEdit(data.url || '');
                     
+                    // Устанавливаем выбранные теги в кастомном интерфейсе
+                    setSelectedCustomTags(data.tags || []);
+                    
                     // Меняем интерфейс
                     document.getElementById('formTitle').textContent = 'Редактировать публикацию';
                     document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Сохранить изменения';
@@ -1735,6 +2070,10 @@
                     
                     // Переходим в админку
                     router.navigate('/admin');
+                    
+                    // Инициализируем кастомные теги если они еще не инициализированы
+                    initCustomTags();
+                    setSelectedCustomTags(data.tags || []);
                     
                     // Прокручиваем к форме
                     setTimeout(() => {
@@ -1861,6 +2200,7 @@
                 const description = document.getElementById('postDescription').value.trim();
                 const content = document.getElementById('postContent').value.trim();
                 const urlInput = document.getElementById('postUrl').value.trim();
+                const selectedTags = getSelectedTags(); // Используем кастомный интерфейс
                 
                 // Валидация
                 if (!title || title.length < 3) {
@@ -1887,6 +2227,9 @@
                 // Сохраняем как массив ссылок, если они есть
                 const urlData = urls.length > 0 ? urls : '';
                 
+                // Подготавливаем теги
+                const tagsData = selectedTags.length > 0 ? selectedTags : [];
+                
                 try {
                     if (isEditing && postId) {
                         // Редактирование существующего поста
@@ -1894,7 +2237,8 @@
                             title,
                             description,
                             content: content || description,
-                            url: urlData
+                            url: urlData,
+                            tags: tagsData
                         });
                         
                         showNotification('Новость успешно обновлена!', 'success');
@@ -1905,6 +2249,7 @@
                             description,
                             content: content || description,
                             url: urlData,
+                            tags: tagsData,
                             createdAt: serverTimestamp()
                         });
                         
@@ -1950,6 +2295,15 @@
                 document.getElementById('submitBtn').innerHTML = '<i class="fas fa-paper-plane"></i> Опубликовать';
                 document.getElementById('cancelEdit').classList.add('hidden');
                 document.getElementById('postsManagement').classList.remove('hidden');
+                
+                // Сбрасываем выбранные теги в кастомном интерфейсе
+                const tagOptions = document.querySelectorAll('.tag-option');
+                tagOptions.forEach(option => {
+                    option.classList.remove('selected');
+                });
+                
+                // Обновляем скрытый select
+                updateHiddenSelect();
             }
 
             // Аутентификация
@@ -1969,6 +2323,8 @@
                     if (isAdmin) {
                         adminBtn.classList.remove('hidden');
                         document.getElementById('postsManagement').classList.remove('hidden');
+                        // Инициализируем кастомные теги
+                        initCustomTags();
                     } else {
                         adminBtn.classList.add('hidden');
                         document.getElementById('postsManagement').classList.add('hidden');
