@@ -257,16 +257,15 @@
             background: #ffffff;
             color: #757575;
             border: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
         .btn-google:hover {
             background: #f8f8f8;
             border-color: #ccc;
-        }
-
-        .btn-google img {
-            width: 18px;
-            height: 18px;
         }
 
         /* Страницы */
@@ -790,6 +789,24 @@
             font-size: 48px;
             margin-bottom: var(--spacing-md);
             opacity: 0.5;
+        }
+
+        .index-error {
+            background: rgba(255, 180, 0, 0.1);
+            border: 1px solid rgba(255, 180, 0, 0.3);
+            border-radius: var(--border-radius);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }
+
+        .index-error h4 {
+            color: #ffaa00;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .index-error a {
+            color: var(--accent-color);
+            text-decoration: underline;
         }
 
         /* Админ-панель с мобильной адаптацией */
@@ -1455,13 +1472,13 @@
         <div class="modal glass">
             <div class="modal-header">
                 <h3 class="modal-title">Подтверждение удаления</h3>
-                <button class="modal-close" onclick="closeModal()">&times;</button>
+                <button class="modal-close" id="deleteModalClose">&times;</button>
             </div>
             <div class="modal-body">
                 <p class="modal-text">Вы уверены, что хотите удалить эту новость? Это действие нельзя отменить.</p>
                 <div class="modal-actions">
-                    <button class="btn btn-secondary" onclick="closeModal()">Отмена</button>
-                    <button class="btn btn-danger" onclick="confirmDelete()">Удалить</button>
+                    <button class="btn btn-secondary" id="deleteModalCancel">Отмена</button>
+                    <button class="btn btn-danger" id="deleteModalConfirm">Удалить</button>
                 </div>
             </div>
         </div>
@@ -1472,7 +1489,7 @@
         <div class="modal glass">
             <div class="modal-header">
                 <h3 class="modal-title">Вход / Регистрация</h3>
-                <button class="modal-close" onclick="closeAuthModal()">&times;</button>
+                <button class="modal-close" id="authModalClose">&times;</button>
             </div>
             <div class="modal-body">
                 <div class="auth-tabs">
@@ -1519,7 +1536,7 @@
                 </div>
                 
                 <button id="googleLoginBtn" class="btn btn-google" style="width: 100%;">
-                    <img src="https://www.google.com/favicon.ico" alt="Google" style="width: 18px; height: 18px;">
+                    <i class="fab fa-google"></i>
                     Войти через Google
                 </button>
             </div>
@@ -1651,7 +1668,9 @@
             signOut, 
             onAuthStateChanged,
             GoogleAuthProvider,
-            signInWithPopup
+            signInWithPopup,
+            signInWithRedirect,
+            getRedirectResult
         } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { 
             getFirestore, 
@@ -1683,6 +1702,9 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
         const googleProvider = new GoogleAuthProvider();
+
+        // Добавляем домен neuronnews.ru в OAuth redirect domains
+        // Это нужно сделать в Firebase Console -> Authentication -> Settings -> Authorized domains
 
         // Список админов
         const allowedAdmins = [
@@ -2103,8 +2125,6 @@
             currentPostToDelete = null;
         }
 
-        window.closeModal = closeModal;
-
         function openAuthModal() {
             document.getElementById('authModal').classList.add('active');
         }
@@ -2116,7 +2136,7 @@
             document.getElementById('registerForm').reset();
         }
 
-        // Лента новостей
+        // Лента новостей - ИСПРАВЛЕННАЯ ВЕРСИЯ
         function renderNewsCard(post, index) {
             const slug = generateSlug(post.title || 'Без названия');
             const isAdmin = window.currentUser && allowedAdmins.includes(window.currentUser.email);
@@ -2126,10 +2146,10 @@
             if (isAdmin) {
                 adminActions = `
                     <div class="card-actions">
-                        <button class="btn btn-warning" onclick="editPost('${post.id}', event)">
+                        <button class="btn btn-warning edit-post-btn" data-id="${post.id}">
                             <i class="fas fa-edit"></i> Редактировать
                         </button>
-                        <button class="btn btn-danger" onclick="deletePostPrompt('${post.id}', event)">
+                        <button class="btn btn-danger delete-post-btn" data-id="${post.id}">
                             <i class="fas fa-trash"></i> Удалить
                         </button>
                     </div>
@@ -2137,7 +2157,7 @@
             }
             
             return `
-                <div class="glass news-card" style="--card-index: ${index};" data-slug="${slug}">
+                <div class="glass news-card" style="--card-index: ${index};" data-slug="${slug}" data-id="${post.id}">
                     <h3 class="card-title">${post.title || 'Без названия'}</h3>
                     <div class="card-date">${formatDate(post.createdAt)}</div>
                     ${tagsHtml}
@@ -2202,12 +2222,28 @@
                         renderNewsCard(post, index)
                     ).join('');
                     
+                    // Добавляем обработчики для карточек новостей
                     document.querySelectorAll('.news-card').forEach(card => {
                         const slug = card.getAttribute('data-slug');
                         card.addEventListener('click', function(e) {
                             if (!e.target.closest('.btn') && !e.target.closest('.tag')) {
                                 router.navigate(`/${slug}`);
                             }
+                        });
+                    });
+                    
+                    // Добавляем обработчики для кнопок редактирования и удаления
+                    document.querySelectorAll('.edit-post-btn').forEach(btn => {
+                        btn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            editPost(this.dataset.id);
+                        });
+                    });
+                    
+                    document.querySelectorAll('.delete-post-btn').forEach(btn => {
+                        btn.addEventListener('click', function(e) {
+                            e.stopPropagation();
+                            deletePostPrompt(this.dataset.id);
                         });
                     });
                 }, (error) => {
@@ -2310,10 +2346,10 @@
                         <div style="margin-top: var(--spacing-lg); padding-top: var(--spacing-md); border-top: 1px solid rgba(255, 255, 255, 0.1);">
                             <div style="font-size: 14px; color: var(--text-secondary); margin-bottom: var(--spacing-sm);">Администратор:</div>
                             <div style="display: flex; gap: var(--spacing-sm);">
-                                <button class="btn btn-warning" onclick="editPost('${foundArticle.id}')">
+                                <button class="btn btn-warning" id="editArticleBtn" data-id="${foundArticle.id}">
                                     <i class="fas fa-edit"></i> Редактировать
                                 </button>
-                                <button class="btn btn-danger" onclick="deletePostPrompt('${foundArticle.id}')">
+                                <button class="btn btn-danger" id="deleteArticleBtn" data-id="${foundArticle.id}">
                                     <i class="fas fa-trash"></i> Удалить
                                 </button>
                             </div>
@@ -2327,7 +2363,7 @@
                             <i class="far fa-calendar"></i>
                             ${formatDate(foundArticle.createdAt)}
                         </div>
-                        <button class="btn btn-secondary" onclick="goToHomePage()">
+                        <button class="btn btn-secondary" id="backToFeedBtn">
                             <i class="fas fa-arrow-left"></i> Назад к ленте
                         </button>
                     </div>
@@ -2342,6 +2378,17 @@
                         <!-- Комментарии будут загружены здесь -->
                     </div>
                 `;
+
+                // Добавляем обработчики для кнопок в статье
+                document.getElementById('backToFeedBtn').addEventListener('click', goToHomePage);
+                if (isAdmin) {
+                    document.getElementById('editArticleBtn').addEventListener('click', function() {
+                        editPost(this.dataset.id);
+                    });
+                    document.getElementById('deleteArticleBtn').addEventListener('click', function() {
+                        deletePostPrompt(this.dataset.id);
+                    });
+                }
 
                 // Загружаем комментарии
                 loadComments(foundArticle.id);
@@ -2361,12 +2408,13 @@
             }
         }
 
-        // Загрузка комментариев
+        // Загрузка комментариев - ИСПРАВЛЕННАЯ ВЕРСИЯ
         async function loadComments(postId) {
             const commentsSection = document.getElementById('commentsSection');
             if (!commentsSection) return;
 
             try {
+                // Сначала попробуем загрузить без индекса, если ошибка - покажем сообщение
                 const commentsQuery = query(
                     collection(db, "comments"), 
                     where("postId", "==", postId),
@@ -2405,8 +2453,8 @@
                     commentForm = `
                         <div class="comment-form">
                             <div style="text-align: center; padding: var(--spacing-md); background: rgba(255, 255, 255, 0.03); border-radius: var(--border-radius);">
-                                <p style="margin-bottom: var(--spacing-sm);">Чтобы оставить комментарий, пожалуйста, <a href="javascript:void(0)" onclick="openAuthModal()" style="color: var(--accent-color);">войдите или зарегистрируйтесь</a></p>
-                                <button onclick="openAuthModal()" class="btn btn-primary">
+                                <p style="margin-bottom: var(--spacing-sm);">Чтобы оставить комментарий, пожалуйста, <a href="javascript:void(0)" id="authLink" style="color: var(--accent-color);">войдите или зарегистрируйтесь</a></p>
+                                <button id="authBtnInComments" class="btn btn-primary">
                                     <i class="fas fa-sign-in-alt"></i> Войти / Зарегистрироваться
                                 </button>
                             </div>
@@ -2446,7 +2494,7 @@
                                         <div class="comment-content">${comment.content.replace(/\n/g, '<br>')}</div>
                                         ${canDelete ? `
                                             <div class="comment-actions">
-                                                <button class="comment-action-btn delete" onclick="deleteComment('${comment.id}')">
+                                                <button class="comment-action-btn delete delete-comment-btn" data-id="${comment.id}">
                                                     <i class="fas fa-trash"></i> Удалить
                                                 </button>
                                             </div>
@@ -2464,19 +2512,51 @@
                     ${commentsList}
                 `;
 
-                // Добавляем обработчик отправки комментария
+                // Добавляем обработчики событий
                 if (isAuthenticated) {
                     document.getElementById('submitCommentBtn').addEventListener('click', submitComment);
+                } else {
+                    document.getElementById('authLink').addEventListener('click', openAuthModal);
+                    document.getElementById('authBtnInComments').addEventListener('click', openAuthModal);
                 }
+
+                // Добавляем обработчики для кнопок удаления комментариев
+                document.querySelectorAll('.delete-comment-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        deleteComment(this.dataset.id);
+                    });
+                });
 
             } catch (error) {
                 console.error("Ошибка загрузки комментариев:", error);
+                
+                // Проверяем, является ли ошибка ошибкой индекса
+                let errorMessage = '';
+                if (error.code === 'failed-precondition' && error.message.includes('index')) {
+                    // Извлекаем URL для создания индекса из сообщения об ошибке
+                    const urlMatch = error.message.match(/https:\/\/[^\s]+/);
+                    const indexUrl = urlMatch ? urlMatch[0] : 'https://console.firebase.google.com/v1/r/project/neuron-ecosystem-2025/firestore/indexes';
+                    
+                    errorMessage = `
+                        <div class="index-error">
+                            <h4>Требуется создать индекс</h4>
+                            <p>Для работы комментариев необходимо создать индекс в Firebase.</p>
+                            <p>Пожалуйста, перейдите по <a href="${indexUrl}" target="_blank">этой ссылке</a> и нажмите "Создать индекс".</p>
+                            <p>После создания индекса (это займет несколько минут) обновите страницу.</p>
+                        </div>
+                    `;
+                } else {
+                    errorMessage = `
+                        <div class="empty-comments">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p>Ошибка загрузки комментариев: ${error.message}</p>
+                        </div>
+                    `;
+                }
+                
                 commentsSection.innerHTML = `
                     <h3 class="comments-title">Комментарии</h3>
-                    <div class="empty-comments">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <p>Ошибка загрузки комментариев</p>
-                    </div>
+                    ${errorMessage}
                 `;
             }
         }
@@ -2524,7 +2604,7 @@
         }
 
         // Удаление комментария
-        window.deleteComment = async function(commentId) {
+        async function deleteComment(commentId) {
             if (!confirm('Вы уверены, что хотите удалить этот комментарий?')) {
                 return;
             }
@@ -2550,7 +2630,7 @@
                 console.error("Ошибка удаления комментария:", error);
                 showNotification('Ошибка удаления комментария', 'error');
             }
-        };
+        }
 
         // Управление постами в админке
         async function loadPostsList() {
@@ -2581,10 +2661,10 @@
                                 ${tagsHtml}
                             </div>
                             <div class="post-actions">
-                                <button class="btn btn-warning" onclick="editPost('${doc.id}')">
+                                <button class="btn btn-warning edit-post-list-btn" data-id="${doc.id}">
                                     <i class="fas fa-edit"></i>
                                 </button>
-                                <button class="btn btn-danger" onclick="deletePostPrompt('${doc.id}')">
+                                <button class="btn btn-danger delete-post-list-btn" data-id="${doc.id}">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </div>
@@ -2593,6 +2673,19 @@
                 });
                 
                 postsList.innerHTML = html;
+                
+                // Добавляем обработчики для кнопок в списке
+                document.querySelectorAll('.edit-post-list-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        editPost(this.dataset.id);
+                    });
+                });
+                
+                document.querySelectorAll('.delete-post-list-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        deletePostPrompt(this.dataset.id);
+                    });
+                });
                 
             } catch (error) {
                 console.error("Ошибка загрузки списка постов:", error);
@@ -2605,10 +2698,8 @@
             }
         }
 
-        // Редактирование поста - ИСПРАВЛЕННАЯ ФУНКЦИЯ
-        window.editPost = async function(postId, event = null) {
-            if (event) event.stopPropagation();
-            
+        // Редактирование поста
+        async function editPost(postId) {
             try {
                 const postRef = doc(db, "posts", postId);
                 const postDoc = await getDoc(postRef);
@@ -2653,17 +2744,16 @@
                 console.error("Ошибка загрузки поста для редактирования:", error);
                 showNotification('Ошибка загрузки поста', 'error');
             }
-        };
+        }
 
         // Запрос на удаление поста
-        window.deletePostPrompt = function(postId, event = null) {
-            if (event) event.stopPropagation();
+        function deletePostPrompt(postId) {
             currentPostToDelete = postId;
             openModal();
-        };
+        }
 
         // Подтверждение удаления поста
-        window.confirmDelete = async function() {
+        async function confirmDelete() {
             if (!currentPostToDelete) return;
             
             try {
@@ -2693,7 +2783,7 @@
                 console.error("Ошибка удаления поста:", error);
                 showNotification('Ошибка удаления новости', 'error');
             }
-        };
+        }
 
         // Поиск поста по slug
         async function findPostBySlug(slug) {
@@ -2737,6 +2827,13 @@
                     showNotification('Ошибка при выходе: ' + error.message, 'error');
                 }
             });
+
+            // Обработчики модальных окон
+            document.getElementById('deleteModalClose').addEventListener('click', closeModal);
+            document.getElementById('deleteModalCancel').addEventListener('click', closeModal);
+            document.getElementById('deleteModalConfirm').addEventListener('click', confirmDelete);
+            
+            document.getElementById('authModalClose').addEventListener('click', closeAuthModal);
 
             // Обработчики модального окна аутентификации
             document.querySelectorAll('.auth-tab').forEach(tab => {
@@ -2806,12 +2903,32 @@
             // Вход через Google
             document.getElementById('googleLoginBtn').addEventListener('click', async () => {
                 try {
-                    await signInWithPopup(auth, googleProvider);
+                    // Для локального тестирования используем redirect вместо popup
+                    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                        await signInWithRedirect(auth, googleProvider);
+                    } else {
+                        await signInWithPopup(auth, googleProvider);
+                        showNotification('Вход через Google выполнен успешно!');
+                        closeAuthModal();
+                    }
+                } catch (error) {
+                    console.error("Ошибка входа через Google:", error);
+                    if (error.code === 'auth/unauthorized-domain') {
+                        showNotification('Домен не авторизован для OAuth. Пожалуйста, добавьте ваш домен (neuronnews.ru) в консоли Firebase в настройках аутентификации.', 'error');
+                    } else {
+                        showNotification('Ошибка входа через Google: ' + error.message, 'error');
+                    }
+                }
+            });
+
+            // Проверяем результат redirect для Google
+            getRedirectResult(auth).then((result) => {
+                if (result) {
                     showNotification('Вход через Google выполнен успешно!');
                     closeAuthModal();
-                } catch (error) {
-                    showNotification('Ошибка входа через Google: ' + error.message, 'error');
                 }
+            }).catch((error) => {
+                console.error("Ошибка redirect:", error);
             });
 
             // Форма создания/редактирования поста
@@ -2971,6 +3088,15 @@
                     }
                 }
             });
+
+            // Делаем функции глобальными для onclick
+            window.closeModal = closeModal;
+            window.closeAuthModal = closeAuthModal;
+            window.goToHomePage = goToHomePage;
+            window.editPost = editPost;
+            window.deletePostPrompt = deletePostPrompt;
+            window.deleteComment = deleteComment;
+            window.confirmDelete = confirmDelete;
 
             // Инициализация роутера
             router.init();
