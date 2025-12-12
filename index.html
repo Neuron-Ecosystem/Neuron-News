@@ -2265,30 +2265,113 @@ async function loadArticle(slug) {
         /**
          * Редактирует пост
          */
-        async function editPost(postId) {
-            try {
-                const postRef = doc(db, "posts", postId);
-                const postDoc = await getDoc(postRef);
-                
-                if (postDoc.exists()) {
-                    const data = postDoc.data();
-                    
-                    isEditing = true;
-                    document.getElementById('postId').value = postId;
-                    document.getElementById('postTitle').value = data.title || '';
-                    document.getElementById('postDescription').value = data.description || '';
-                    document.getElementById('postContent').value = data.content || '';
-                    
-                    // Форматируем URL
-                    let urlValue = '';
-                    if (data.url) {
-                        if (Array.isArray(data.url)) {
-                            urlValue = data.url.join(', ');
-                        } else {
-                            urlValue = data.url;
-                        }
-                    }
-                    document.getElementById('postUrl').value = urlValue;
+/**
+ * Загружает данные поста в форму для редактирования.
+ */
+async function editPost(postId) {
+    try {
+        const postRef = doc(db, "posts", postId);
+        const postDoc = await getDoc(postRef);
+        
+        if (postDoc.exists()) {
+            const data = postDoc.data();
+            
+            // --- 1. Обновление состояния и скрытых полей ---
+            isEditing = true;
+            document.getElementById('postId').value = postId;
+            
+            // --- 2. Заполнение текстовых полей ---
+            document.getElementById('postTitle').value = data.title || '';
+            document.getElementById('postDescription').value = data.description || '';
+            document.getElementById('postContent').value = data.content || '';
+            
+            // Форматируем URL (Ссылки)
+            let urlValue = '';
+            if (data.url) {
+                if (Array.isArray(data.url)) {
+                    urlValue = data.url.join(', ');
+                } else {
+                    urlValue = data.url;
+                }
+            }
+            document.getElementById('postUrl').value = urlValue;
+
+            // --- 3. Заполнение полей изображений (Текущие URL) ---
+            currentImageUrls = Array.isArray(data.images) ? data.images : (data.images ? [data.images] : []);
+            
+            // Форматируем URL изображений для поля ввода
+            document.getElementById('postImageUrls').value = currentImageUrls.join(', ');
+            
+            // Отображение текущих изображений в админ-панели
+            renderCurrentImages(currentImageUrls);
+            
+            // --- 4. Заполнение и выбор тегов ---
+            const postTags = Array.isArray(data.tags) ? data.tags : [];
+            
+            // Сбрасываем все текущие выборы
+            document.querySelectorAll('.tag-option').forEach(el => el.classList.remove('selected'));
+            
+            // Выбираем теги, которые есть в посте
+            postTags.forEach(tag => {
+                const tagElement = document.querySelector(`.tag-option[data-tag="${tag}"]`);
+                if (tagElement) {
+                    tagElement.classList.add('selected');
+                }
+            });
+            updateHiddenSelect(); // Обновляем скрытый select
+            
+            // --- 5. Обновление интерфейса ---
+            document.getElementById('formTitle').textContent = 'Редактирование публикации';
+            document.getElementById('submitBtn').innerHTML = '<i class="fas fa-save"></i> Сохранить изменения';
+            document.getElementById('cancelEdit').classList.remove('hidden');
+
+            // Прокручиваем страницу вверх, к форме
+            document.getElementById('adminPage').scrollIntoView({ behavior: 'smooth' });
+
+        } else {
+            showNotification('Ошибка: Пост не найден.', 'error');
+        }
+
+    } catch (error) {
+        console.error("Ошибка при редактировании поста:", error);
+        showNotification('Не удалось загрузить данные поста: ' + error.message, 'error');
+    }
+}
+
+/**
+ * Вспомогательная функция для отображения текущих изображений.
+ * (Её нужно добавить в ваш блок функций, если её нет)
+ */
+function renderCurrentImages(urls) {
+    const grid = document.getElementById('currentImagesGrid');
+    const container = document.getElementById('currentImages');
+    grid.innerHTML = '';
+
+    if (urls.length === 0) {
+        container.classList.add('hidden');
+        return;
+    }
+    
+    container.classList.remove('hidden');
+    urls.forEach((url, index) => {
+        const item = document.createElement('div');
+        item.className = 'image-preview-item';
+        item.innerHTML = `
+            <img src="${url}" alt="Текущее изображение">
+            <button type="button" class="remove-image-btn" data-index="${index}" title="Удалить это изображение">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        grid.appendChild(item);
+        
+        // Добавляем обработчик для кнопки удаления
+        item.querySelector('.remove-image-btn').addEventListener('click', () => {
+            currentImageUrls.splice(index, 1);
+            document.getElementById('postImageUrls').value = currentImageUrls.join(', ');
+            renderCurrentImages(currentImageUrls); // Перерисовываем список
+        });
+    });
+}
                     
                     // Форматируем ссылки на изображения
                     let imageUrlsValue = '';
