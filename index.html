@@ -1403,60 +1403,72 @@
         /**
          * Загружает статью по slug с оптимизированным поиском
          */
-        async function loadArticle(slug) {
-            const articleContent = document.getElementById('articleContent');
-            
-            try {
-                articleContent.innerHTML = `
-                    <div class="loader">
-                        <i class="fas fa-spinner"></i> Загрузка статьи...
-                    </div>
-                `;
+    /**
+ * ИСПРАВЛЕННАЯ ФУНКЦИЯ ЗАГРУЗКИ СТАТЬИ
+ * 1. Ищет по полю 'slug' (наиболее надежный способ).
+ * 2. Если не найдено, ищет по Document ID (на случай, если slug является ID).
+ * 3. Если не найдено, ищет по заголовку (менее надежный, оставлен для обратной совместимости).
+ */
+async function loadArticle(slug) {
+    const articleContent = document.getElementById('articleContent');
+    
+    // 1. Показываем индикатор загрузки
+    articleContent.innerHTML = `
+        <div class="glass loading-state" style="text-align: center; padding: 100px 0;">
+            <i class="fas fa-spinner fa-spin fa-3x" style="color: var(--accent-color);"></i>
+            <p style="margin-top: 20px;">Загружаем статью...</p>
+        </div>
+    `;
 
-                if (!slug || slug === 'undefined') {
-                    throw new Error('Статья не найдена');
-                }
+    if (!slug || slug === 'undefined') {
+        showErrorPage('Статья не найдена. Некорректный URL.');
+        return;
+    }
 
-                const postsRef = collection(db, "posts");
-                
-                // Оптимизация: поиск по полю slug (должно быть создано в документах)
-                // Если поле slug отсутствует, используем поиск по заголовку
-                const q = query(postsRef, where("slug", "==", slug));
-                
-                const querySnapshot = await getDocs(q);
-                
-                if (querySnapshot.empty) {
-                    // Альтернативный поиск: пробуем найти по заголовку
-                    const titleQuery = query(
-                        postsRef, 
-                        where("title", "==", decodeURIComponent(slug).replace(/-/g, ' '))
-                    );
-                    const titleSnapshot = await getDocs(titleQuery);
-                    
-                    if (titleSnapshot.empty) {
-                        throw new Error('Статья не найдена');
-                    }
-                    
-                    const doc = titleSnapshot.docs[0];
-                    displayArticle(doc.data(), doc.id);
-                } else {
-                    const doc = querySnapshot.docs[0];
-                    displayArticle(doc.data(), doc.id);
-                }
-
-            } catch (error) {
-                console.error("Ошибка загрузки статьи:", error);
-                articleContent.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <p>${error.message}</p>
-                        <button class="btn btn-secondary" onclick="router.navigate('/')" style="margin-top: 20px;">
-                            <i class="fas fa-arrow-left"></i> Вернуться на главную
-                        </button>
-                    </div>
-                `;
-            }
+    try {
+        const postsRef = collection(db, "posts");
+        let querySnapshot = null;
+        
+        // 2. Поиск по полю 'slug'
+        const slugQuery = query(postsRef, where("slug", "==", slug));
+        querySnapshot = await getDocs(slugQuery);
+        
+        if (!querySnapshot.empty) {
+            // Найдено по полю slug
+            const doc = querySnapshot.docs[0];
+            displayArticle(doc.data(), doc.id);
+            return; 
         }
+
+        // 3. Поиск по Document ID (если slug это на самом деле ID документа)
+        const docSnap = await getDoc(doc(db, "posts", slug));
+        
+        if (docSnap.exists()) {
+            displayArticle(docSnap.data(), docSnap.id);
+            return; // Найдено по ID
+        }
+
+        // 4. Поиск по заголовку (Ваш старый, ненадёжный метод, оставлен как последний шанс)
+        const searchTitleFromSlug = decodeURIComponent(slug).replace(/-/g, ' ');
+        const titleQuery = query(postsRef, where("title", "==", searchTitleFromSlug));
+        querySnapshot = await getDocs(titleQuery);
+        
+        if (querySnapshot.empty) {
+            // Если ни один из 3-х способов не сработал
+            showErrorPage('Статья не найдена по указанному адресу.');
+            return;
+        }
+        
+        // Найдено по заголовку
+        const doc = querySnapshot.docs[0];
+        displayArticle(doc.data(), doc.id);
+
+
+    } catch (error) {
+        console.error("Критическая ошибка загрузки статьи:", error);
+        showErrorPage('Ошибка при загрузке статьи: ' + error.message);
+    }
+}
 
         /**
          * Отображает загруженную статью
