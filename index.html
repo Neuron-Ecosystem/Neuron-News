@@ -1127,19 +1127,6 @@ async function loadNewsFeed() {
             `;
         }
 
-        function loadNewsFeed() {
-            try {
-                const postsQuery = query(collection(db, "posts"), orderBy("createdAt", "desc"));
-                
-                onSnapshot(postsQuery, (snapshot) => {
-                    const posts = [];
-                    snapshot.forEach(doc => {
-                        try {
-                            const data = doc.data();
-                            if (!data.title || data.title.trim() === '') {
-                                console.warn('Пост с отсутствующим заголовком:', doc.id);
-                                return;
-                            }
                             posts.push({ 
                                 id: doc.id, 
                                 title: data.title || '',
