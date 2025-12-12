@@ -488,29 +488,92 @@
                 
                 if (hash === '' || hash === '/') {
                     document.getElementById('homePage').classList.add('active');
-                    loadNewsFeed();
-                } else if (hash === '/admin') {
-                    document.getElementById('adminPage').classList.add('active');
-                    if (window.currentUser && allowedAdmins.includes(window.currentUser.email)) {
-                        loadPostsList();
-                        initCustomTags();
-                    }
-                } else {
-                    document.getElementById('articlePage').classList.add('active');
-                    const slug = hash.startsWith('/') ? hash.substring(1) : hash;
-                    loadArticle(slug);
-                }
-            },
-            
-            navigate(path) {
-                window.location.hash = path;
-            },
-            
-            getCurrentPath() {
-                return window.location.hash.substring(1) || '/';
-            }
-        };
+// Предполагаем, что импорты Firestore (db, collection, query, orderBy, limit, getDocs) 
+// уже присутствуют в вашем файле index (25).html
 
+/**
+ * Загружает список последних новостей с оптимизацией (только 10 самых свежих)
+ * и отображает их в ленте.
+ */
+async function loadNewsFeed() {
+    const newsFeedContainer = document.getElementById('newsFeed');
+    
+    // --- 1. Показать индикатор загрузки ---
+    // Очищаем старую ленту и показываем сообщение о загрузке
+    newsFeedContainer.innerHTML = `
+        <div class="loading-state" style="text-align: center; padding: 50px 0;">
+            <i class="fas fa-spinner fa-spin fa-2x" style="color: #00d9ff;"></i>
+            <p style="margin-top: 15px; color: #b0b0c0;">Загружаем самые свежие новости...</p>
+        </div>
+    `;
+
+    try {
+        const postsRef = collection(db, "posts");
+        
+        // --- 2. Оптимизированный Запрос Firestore ---
+        // Запрос сортирует по дате создания (последние первыми) и ограничивает 10 постами.
+        // ЭТОТ ШАГ РЕЗКО УМЕНЬШИТ ВРЕМЯ ОЖИДАНИЯ (LCP)
+        const q = query(
+            postsRef, 
+            orderBy("createdAt", "desc"), 
+            limit(10)
+        ); 
+
+        const querySnapshot = await getDocs(q);
+        
+        // --- 3. Обработка результатов ---
+        newsFeedContainer.innerHTML = ''; // Очищаем индикатор загрузки
+        
+        if (querySnapshot.empty) {
+            newsFeedContainer.innerHTML = '<p class="no-posts-message">Новостей пока нет.</p>';
+            return;
+        }
+
+        querySnapshot.forEach(doc => {
+            const post = doc.data();
+            const postId = doc.id;
+            
+            // Если у поста нет slug, генерируем его, используя функцию, 
+            // которая должна быть определена в вашем коде.
+            const slug = post.slug || generateSlug(post.title);
+            
+            const cardHtml = `
+                <div class="post-card glass" data-id="${postId}">
+                    ${post.images && post.images.length > 0 ? `<img src="${post.images[0]}" alt="${post.title}" class="post-image">` : ''}
+                    <div class="post-content">
+                        ${post.tags && post.tags.length > 0 ? `<div class="post-tags">${post.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div>` : ''}
+                        <h2 class="post-title"><a href="#/${slug}" onclick="router.navigate('/${slug}'); return false;">${post.title}</a></h2>
+                        <p class="post-description">${post.description}</p>
+                        <div class="post-meta">
+                            <span>${post.createdAt ? new Date(post.createdAt.seconds * 1000).toLocaleDateString() : 'Дата неизвестна'}</span>
+                            <a href="#/${slug}" onclick="router.navigate('/${slug}'); return false;" class="read-more">Читать далее <i class="fas fa-arrow-right"></i></a>
+                        </div>
+                    </div>
+                </div>
+            `;
+            newsFeedContainer.innerHTML += cardHtml;
+        });
+
+    } catch (error) {
+        // --- 4. Обработка ошибки загрузки ---
+        console.error("Ошибка загрузки ленты:", error);
+        
+        newsFeedContainer.innerHTML = `
+            <div class="error-state" style="text-align: center; padding: 50px 0;">
+                <i class="fas fa-exclamation-triangle fa-2x" style="color: #ff5555;"></i>
+                <p style="margin-top: 15px; color: #ff5555;">
+                    Не удалось загрузить новости: ${error.message}. 
+                    Возможно, превышено время ожидания Firestore (10с).
+                </p>
+                <p style="margin-top: 10px; color: #b0b0c0;">Попробуйте обновить страницу или проверить настройки Firebase.</p>
+            </div>
+        `;
+        showNotification('Критическая ошибка загрузки новостей.', 'error');
+    }
+}
+
+// ПРИМЕЧАНИЕ: Убедитесь, что функции типа generateSlug, showNotification, 
+// и router.navigate определены и доступны.
         // Утилиты (без изменений)
         function showNotification(message, type = 'success') {
             const container = document.getElementById('notificationContainer');
@@ -1146,21 +1209,103 @@
         }
 
         // Загрузка статьи с комментариями
-        async function loadArticle(slug) {
-            const articleContent = document.getElementById('articleContent');
-            
-            if (!slug || slug === 'undefined') {
-                articleContent.innerHTML = `
-                    <div class="glass empty-state">
-                        <i class="fas fa-exclamation-triangle"></i>
-                        <p>Статья не найдена</p>
-                        <button class="btn btn-secondary" onclick="goToHomePage()" style="margin-top: 20px;">
-                            <i class="fas fa-arrow-left"></i> Вернуться на главную
-                        </button>
-                    </div>
-                `;
-                return;
-            }
+async function loadArticle(slug) {
+    const articleContent = document.getElementById('articleContent');
+    
+    // 1. Показываем индикатор загрузки, чтобы пользователь не видел пустой экран
+    articleContent.innerHTML = `
+        <div class="glass loading-state" style="text-align: center; padding: 100px 0;">
+            <i class="fas fa-spinner fa-spin fa-3x" style="color: var(--accent-color);"></i>
+            <p style="margin-top: 20px;">Загружаем статью...</p>
+        </div>
+    `;
+    
+    if (!slug || slug === 'undefined') {
+        showErrorPage('Статья не найдена');
+        return;
+    }
+
+    try {
+        // 2. Ищем статью в коллекции "posts" по полю "title" (или "slug", если оно у вас есть)
+        // ИИ часто генерирует поиск через заголовок, если вы не создавали отдельное поле slug
+        const postsRef = collection(db, "posts");
+        
+        // ВАЖНО: Мы пытаемся найти статью, где заголовок совпадает с тем, что в ссылке.
+        // Если у вас в базе есть поле 'slug', замените "title" на "slug" ниже.
+        const q = query(postsRef, where("title", "==", decodeURIComponent(slug).replace(/-/g, ' ')));
+        
+        // Если вы используете специальное поле slug, используйте эту строку:
+        // const q = query(postsRef, where("slug", "==", slug));
+
+        const querySnapshot = await getDocs(q);
+
+        if (querySnapshot.empty) {
+            // Если по заголовку не нашли, попробуем найти напрямую по ID (на всякий случай)
+            try {
+                const docRef = doc(db, "posts", slug);
+                const docSnap = await getDoc(docRef);
+                if (docSnap.exists()) {
+                    displayArticle(docSnap.data(), docSnap.id);
+                    return;
+                }
+            } catch (e) { /* игнорируем */ }
+
+            showErrorPage('Статья не найдена');
+            return;
+        }
+
+        // 3. Берем первый найденный документ и отображаем его
+        const docData = querySnapshot.docs[0].data();
+        const docId = querySnapshot.docs[0].id;
+        displayArticle(docData, docId);
+
+    } catch (error) {
+        console.error("Ошибка загрузки статьи:", error);
+        showErrorPage('Ошибка при загрузке: ' + error.message);
+    }
+}
+
+// Вспомогательная функция для отрисовки контента (чтобы не дублировать код)
+function displayArticle(post, id) {
+    const articleContent = document.getElementById('articleContent');
+    currentArticleId = id; // Запоминаем ID для комментариев
+
+    articleContent.innerHTML = `
+        <div class="article-full glass">
+            ${post.images && post.images.length > 0 ? `<img src="${post.images[0]}" class="article-main-image">` : ''}
+            <div class="article-header">
+                <div class="post-tags">
+                    ${post.tags ? post.tags.map(tag => `<span class="tag">${tag}</span>`).join('') : ''}
+                </div>
+                <h1 class="article-title">${post.title}</h1>
+                <div class="article-meta">
+                    <span><i class="far fa-calendar"></i> ${post.createdAt ? new Date(post.createdAt.seconds * 1000).toLocaleDateString() : 'Дата неизвестна'}</span>
+                </div>
+            </div>
+            <div class="article-body">
+                ${post.content || post.description}
+            </div>
+        </div>
+    `;
+    
+    // Загружаем комментарии после отображения статьи
+    if (typeof loadComments === 'function') {
+        loadComments(id);
+    }
+}
+
+// Вспомогательная функция для ошибок
+function showErrorPage(message) {
+    document.getElementById('articleContent').innerHTML = `
+        <div class="glass empty-state">
+            <i class="fas fa-exclamation-triangle"></i>
+            <p>${message}</p>
+            <button class="btn btn-secondary" onclick="goToHomePage()" style="margin-top: 20px;">
+                <i class="fas fa-arrow-left"></i> Вернуться на главную
+            </button>
+        </div>
+    `;
+}
 
             try {
                 const postsQuery = query(collection(db, "posts"));
