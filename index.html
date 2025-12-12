@@ -1699,317 +1699,326 @@
         }
 
         // Инициализация приложения
-        function initApp() {
-            // Проверяем ImgBB ключ
-            checkImgBBKey();
-            
-            // Обработчики UI
-            document.getElementById('authBtn').addEventListener('click', openAuthModal);
-            
-            document.getElementById('adminBtn').addEventListener('click', () => {
-                router.navigate('/admin');
-            });
+      function initApp() {
+    // =======================================================
+    // ИСПРАВЛЕНИЕ: Роутер запускается НЕМЕДЛЕННО
+    // Это гарантирует, что страницы новостей загружаются с первого раза,
+    // не дожидаясь проверки авторизации Firebase.
+    // =======================================================
+    router.init();
+    
+    // Проверяем ImgBB ключ
+    checkImgBBKey();
+    
+    // Обработчики UI
+    document.getElementById('authBtn').addEventListener('click', openAuthModal);
+    
+    document.getElementById('adminBtn').addEventListener('click', () => {
+        router.navigate('/admin');
+    });
 
-            document.getElementById('logoutBtn').addEventListener('click', async () => {
-                try {
-                    await signOut(auth);
-                    showNotification('Вы успешно вышли из системы');
-                    closeAuthModal();
-                } catch (error) {
-                    showNotification('Ошибка при выходе: ' + error.message, 'error');
-                }
-            });
-
-            // Обработчики модальных окон
-            document.getElementById('deleteModalClose').addEventListener('click', closeModal);
-            document.getElementById('deleteModalCancel').addEventListener('click', closeModal);
-            document.getElementById('deleteModalConfirm').addEventListener('click', confirmDelete);
-            
-            document.getElementById('authModalClose').addEventListener('click', closeAuthModal);
-
-            // Обработчики модального окна аутентификации
-            document.querySelectorAll('.auth-tab').forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const tabId = this.dataset.tab;
-                    
-                    document.querySelectorAll('.auth-tab').forEach(t => {
-                        t.classList.remove('active');
-                    });
-                    
-                    this.classList.add('active');
-                    
-                    document.querySelectorAll('.auth-form').forEach(form => {
-                        form.classList.remove('active');
-                    });
-                    
-                    document.getElementById(`${tabId}Form`).classList.add('active');
-                });
-            });
-
-            // Форма входа
-            document.getElementById('loginForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const email = document.getElementById('loginEmail').value;
-                const password = document.getElementById('loginPassword').value;
-                
-                try {
-                    await signInWithEmailAndPassword(auth, email, password);
-                    showNotification('Вход выполнен успешно!');
-                    closeAuthModal();
-                    document.getElementById('loginForm').reset();
-                } catch (error) {
-                    showNotification('Ошибка входа: ' + error.message, 'error');
-                }
-            });
-
-            // Форма регистрации
-            document.getElementById('registerForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const email = document.getElementById('registerEmail').value;
-                const password = document.getElementById('registerPassword').value;
-                const confirmPassword = document.getElementById('registerConfirmPassword').value;
-                
-                if (password !== confirmPassword) {
-                    showNotification('Пароли не совпадают', 'error');
-                    return;
-                }
-                
-                if (password.length < 6) {
-                    showNotification('Пароль должен быть не менее 6 символов', 'error');
-                    return;
-                }
-                
-                try {
-                    await createUserWithEmailAndPassword(auth, email, password);
-                    showNotification('Регистрация успешна!');
-                    closeAuthModal();
-                    document.getElementById('registerForm').reset();
-                } catch (error) {
-                    showNotification('Ошибка регистрации: ' + error.message, 'error');
-                }
-            });
-
-            // Вход через Google
-            document.getElementById('googleLoginBtn').addEventListener('click', async () => {
-                try {
-                    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                        await signInWithRedirect(auth, googleProvider);
-                    } else {
-                        await signInWithPopup(auth, googleProvider);
-                        showNotification('Вход через Google выполнен успешно!');
-                        closeAuthModal();
-                    }
-                } catch (error) {
-                    console.error("Ошибка входа через Google:", error);
-                    if (error.code === 'auth/unauthorized-domain') {
-                        showNotification('Домен не авторизован для OAuth. Пожалуйста, добавьте ваш домен в настройках Firebase.', 'error');
-                    } else {
-                        showNotification('Ошибка входа через Google: ' + error.message, 'error');
-                    }
-                }
-            });
-
-            // Проверяем результат redirect для Google
-            getRedirectResult(auth).then((result) => {
-                if (result) {
-                    showNotification('Вход через Google выполнен успешно!');
-                    closeAuthModal();
-                }
-            }).catch((error) => {
-                console.error("Ошибка redirect:", error);
-            });
-
-            // Инициализация загрузки изображений
-            initImageUpload();
-
-            // Форма создания/редактирования поста
-            document.getElementById('postForm').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                
-                const postId = document.getElementById('postId').value;
-                const title = document.getElementById('postTitle').value.trim();
-                const description = document.getElementById('postDescription').value.trim();
-                const content = document.getElementById('postContent').value.trim();
-                const urlInput = document.getElementById('postUrl').value.trim();
-                const imageUrlsInput = document.getElementById('postImageUrls').value.trim();
-                const selectedTags = getSelectedTags();
-                
-                // Валидация
-                if (!title || title.length < 3) {
-                    showNotification('Заголовок должен быть не менее 3 символов', 'error');
-                    return;
-                }
-                
-                if (!description || description.length < 10) {
-                    showNotification('Описание должно быть не менее 10 символов', 'error');
-                    return;
-                }
-                
-                const urls = parseUrls(urlInput);
-                const invalidUrls = urls.filter(url => !url.startsWith('http://') && !url.startsWith('https://'));
-                if (invalidUrls.length > 0) {
-                    showNotification('Некорректные ссылки. Убедитесь, что все ссылки начинаются с http:// или https://', 'error');
-                    return;
-                }
-                
-                const urlData = urls.length > 0 ? urls : '';
-                
-                try {
-                    let imagesData = [];
-                    
-                    // 1. Собираем изображения из ссылок
-                    const parsedImageUrls = parseImageUrls(imageUrlsInput);
-                    imagesData = [...parsedImageUrls];
-                    
-                    // 2. Загружаем новые изображения на ImgBB
-                    if (selectedImages.length > 0) {
-                        const uploadedUrls = await uploadImages();
-                        imagesData = [...imagesData, ...uploadedUrls];
-                    }
-                    
-                    // 3. Добавляем текущие изображения (при редактировании)
-                    if (isEditing && currentImageUrls.length > 0) {
-                        imagesData = [...imagesData, ...currentImageUrls];
-                        // Удаляем дубликаты
-                        imagesData = [...new Set(imagesData)];
-                    }
-                    
-                    if (isEditing && postId) {
-                        // Редактирование существующего поста
-                        await updateDoc(doc(db, "posts", postId), {
-                            title,
-                            description,
-                            content: content || description,
-                            url: urlData,
-                            images: imagesData,
-                            tags: selectedTags
-                        });
-                        
-                        showNotification('Новость успешно обновлена!', 'success');
-                    } else {
-                        // Создание нового поста
-                        await addDoc(collection(db, "posts"), {
-                            title,
-                            description,
-                            content: content || description,
-                            url: urlData,
-                            images: imagesData,
-                            tags: selectedTags,
-                            createdAt: serverTimestamp()
-                        });
-                        
-                        showNotification('Новость успешно опубликована!', 'success');
-                    }
-                    
-                    resetForm();
-                    loadNewsFeed();
-                    loadPostsList();
-                    
-                    if (!isEditing) {
-                        const slug = generateSlug(title);
-                        setTimeout(() => {
-                            router.navigate(`/${slug}`);
-                        }, 1000);
-                    } else {
-                        showNotification('Изменения сохранены', 'success');
-                    }
-                    
-                } catch (error) {
-                    console.error('Ошибка публикации:', error);
-                    showNotification('Ошибка: ' + error.message, 'error');
-                }
-            });
-
-            // Кнопка отмены редактирования
-            document.getElementById('cancelEdit').addEventListener('click', () => {
-                resetForm();
-                showNotification('Редактирование отменено', 'warning');
-            });
-
-            // Функция сброса формы
-            function resetForm() {
-                isEditing = false;
-                selectedImages = [];
-                currentImageUrls = [];
-                
-                document.getElementById('postForm').reset();
-                document.getElementById('postId').value = '';
-                document.getElementById('formTitle').textContent = 'Создать новую публикацию';
-                document.getElementById('submitBtn').innerHTML = '<i class="fas fa-paper-plane"></i> Опубликовать';
-                document.getElementById('cancelEdit').classList.add('hidden');
-                document.getElementById('postsManagement').classList.remove('hidden');
-                document.getElementById('imagePreview').classList.add('hidden');
-                document.getElementById('currentImages').classList.add('hidden');
-                document.getElementById('imagePreviewGrid').innerHTML = '';
-                document.getElementById('currentImagesGrid').innerHTML = '';
-                
-                const tagOptions = document.querySelectorAll('.tag-option');
-                tagOptions.forEach(option => {
-                    option.classList.remove('selected');
-                });
-                
-                updateHiddenSelect();
-            }
-
-            // Аутентификация
-            onAuthStateChanged(auth, (user) => {
-                const authBtn = document.getElementById('authBtn');
-                const userInfo = document.getElementById('userInfo');
-                const userEmail = document.getElementById('userEmail');
-                const adminBtn = document.getElementById('adminBtn');
-                
-                window.currentUser = user;
-                
-                if (user) {
-                    authBtn.classList.add('hidden');
-                    userInfo.classList.remove('hidden');
-                    userEmail.textContent = user.email;
-                    
-                    const isAdmin = allowedAdmins.includes(user.email);
-                    if (isAdmin) {
-                        adminBtn.classList.remove('hidden');
-                        document.getElementById('postsManagement').classList.remove('hidden');
-                        initCustomTags();
-                    } else {
-                        adminBtn.classList.add('hidden');
-                        document.getElementById('postsManagement').classList.add('hidden');
-                        if (router.getCurrentPath() === '/admin') {
-                            router.navigate('/');
-                            showNotification('У вас нет прав администратора', 'error');
-                        }
-                    }
-                } else {
-                    authBtn.classList.remove('hidden');
-                    userInfo.classList.add('hidden');
-                    adminBtn.classList.add('hidden');
-                    document.getElementById('postsManagement').classList.add('hidden');
-                    if (router.getCurrentPath() === '/admin') {
-                        router.navigate('/');
-                    }
-                }
-                
-                if (router.getCurrentPath() !== '/' && router.getCurrentPath() !== '/admin') {
-                    const slug = router.getCurrentPath().substring(1);
-                    if (currentArticleId) {
-                        loadComments(currentArticleId);
-                    }
-                }
-            });
-
-            // Делаем функции глобальными
-            window.closeModal = closeModal;
-            window.closeAuthModal = closeAuthModal;
-            window.goToHomePage = goToHomePage;
-            window.editPost = editPost;
-            window.deletePostPrompt = deletePostPrompt;
-            window.deleteComment = deleteComment;
-            window.confirmDelete = confirmDelete;
-
-            // Инициализация роутера
-            router.init();
-            
-            console.log('Neuron News инициализирован с ImgBB загрузкой изображений');
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+        try {
+            await signOut(auth);
+            showNotification('Вы успешно вышли из системы');
+            closeAuthModal();
+        } catch (error) {
+            showNotification('Ошибка при выходе: ' + error.message, 'error');
         }
+    });
+
+    // Обработчики модальных окон
+    document.getElementById('deleteModalClose').addEventListener('click', closeModal);
+    document.getElementById('deleteModalCancel').addEventListener('click', closeModal);
+    document.getElementById('deleteModalConfirm').addEventListener('click', confirmDelete);
+    
+    document.getElementById('authModalClose').addEventListener('click', closeAuthModal);
+
+    // Обработчики модального окна аутентификации
+    document.querySelectorAll('.auth-tab').forEach(tab => {
+        tab.addEventListener('click', function() {
+            const tabId = this.dataset.tab;
+            
+            document.querySelectorAll('.auth-tab').forEach(t => {
+                t.classList.remove('active');
+            });
+            
+            this.classList.add('active');
+            
+            document.querySelectorAll('.auth-form').forEach(form => {
+                form.classList.remove('active');
+            });
+            
+            document.getElementById(`${tabId}Form`).classList.add('active');
+        });
+    });
+
+    // Форма входа
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail').value;
+        const password = document.getElementById('loginPassword').value;
+        
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+            showNotification('Вход выполнен успешно!');
+            closeAuthModal();
+            document.getElementById('loginForm').reset();
+        } catch (error) {
+            showNotification('Ошибка входа: ' + error.message, 'error');
+        }
+    });
+
+    // Форма регистрации
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('registerEmail').value;
+        const password = document.getElementById('registerPassword').value;
+        const confirmPassword = document.getElementById('registerConfirmPassword').value;
+        
+        if (password !== confirmPassword) {
+            showNotification('Пароли не совпадают', 'error');
+            return;
+        }
+        
+        if (password.length < 6) {
+            showNotification('Пароль должен быть не менее 6 символов', 'error');
+            return;
+        }
+        
+        try {
+            await createUserWithEmailAndPassword(auth, email, password);
+            showNotification('Регистрация успешна!');
+            closeAuthModal();
+            document.getElementById('registerForm').reset();
+        } catch (error) {
+            showNotification('Ошибка регистрации: ' + error.message, 'error');
+        }
+    });
+
+    // Вход через Google
+    document.getElementById('googleLoginBtn').addEventListener('click', async () => {
+        try {
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                await signInWithRedirect(auth, googleProvider);
+            } else {
+                await signInWithPopup(auth, googleProvider);
+                showNotification('Вход через Google выполнен успешно!');
+                closeAuthModal();
+            }
+        } catch (error) {
+            console.error("Ошибка входа через Google:", error);
+            if (error.code === 'auth/unauthorized-domain') {
+                showNotification('Домен не авторизован для OAuth. Пожалуйста, добавьте ваш домен в настройках Firebase.', 'error');
+            } else {
+                showNotification('Ошибка входа через Google: ' + error.message, 'error');
+            }
+        }
+    });
+
+    // Проверяем результат redirect для Google
+    getRedirectResult(auth).then((result) => {
+        if (result) {
+            showNotification('Вход через Google выполнен успешно!');
+            closeAuthModal();
+        }
+    }).catch((error) => {
+        console.error("Ошибка redirect:", error);
+    });
+
+    // Инициализация загрузки изображений
+    initImageUpload();
+
+    // Форма создания/редактирования поста
+    document.getElementById('postForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const postId = document.getElementById('postId').value;
+        const title = document.getElementById('postTitle').value.trim();
+        const description = document.getElementById('postDescription').value.trim();
+        const content = document.getElementById('postContent').value.trim();
+        const urlInput = document.getElementById('postUrl').value.trim();
+        const imageUrlsInput = document.getElementById('postImageUrls').value.trim();
+        const selectedTags = getSelectedTags();
+        
+        // Валидация
+        if (!title || title.length < 3) {
+            showNotification('Заголовок должен быть не менее 3 символов', 'error');
+            return;
+        }
+        
+        if (!description || description.length < 10) {
+            showNotification('Описание должно быть не менее 10 символов', 'error');
+            return;
+        }
+        
+        const urls = parseUrls(urlInput);
+        const invalidUrls = urls.filter(url => !url.startsWith('http://') && !url.startsWith('https://'));
+        if (invalidUrls.length > 0) {
+            showNotification('Некорректные ссылки. Убедитесь, что все ссылки начинаются с http:// или https://', 'error');
+            return;
+        }
+        
+        const urlData = urls.length > 0 ? urls : '';
+        
+        try {
+            let imagesData = [];
+            
+            // 1. Собираем изображения из ссылок
+            const parsedImageUrls = parseImageUrls(imageUrlsInput);
+            imagesData = [...parsedImageUrls];
+            
+            // 2. Загружаем новые изображения на ImgBB
+            if (selectedImages.length > 0) {
+                const uploadedUrls = await uploadImages();
+                imagesData = [...imagesData, ...uploadedUrls];
+            }
+            
+            // 3. Добавляем текущие изображения (при редактировании)
+            if (isEditing && currentImageUrls.length > 0) {
+                imagesData = [...imagesData, ...currentImageUrls];
+                // Удаляем дубликаты
+                imagesData = [...new Set(imagesData)];
+            }
+            
+            if (isEditing && postId) {
+                // Редактирование существующего поста
+                await updateDoc(doc(db, "posts", postId), {
+                    title,
+                    description,
+                    content: content || description,
+                    url: urlData,
+                    images: imagesData,
+                    tags: selectedTags
+                });
+                
+                showNotification('Новость успешно обновлена!', 'success');
+            } else {
+                // Создание нового поста
+                await addDoc(collection(db, "posts"), {
+                    title,
+                    description,
+                    content: content || description,
+                    url: urlData,
+                    images: imagesData,
+                    tags: selectedTags,
+                    createdAt: serverTimestamp()
+                });
+                
+                showNotification('Новость успешно опубликована!', 'success');
+            }
+            
+            resetForm();
+            loadNewsFeed();
+            loadPostsList();
+            
+            if (!isEditing) {
+                const slug = generateSlug(title);
+                setTimeout(() => {
+                    router.navigate(`/${slug}`);
+                }, 1000);
+            } else {
+                showNotification('Изменения сохранены', 'success');
+            }
+            
+        } catch (error) {
+            console.error('Ошибка публикации:', error);
+            showNotification('Ошибка: ' + error.message, 'error');
+        }
+    });
+
+    // Кнопка отмены редактирования
+    document.getElementById('cancelEdit').addEventListener('click', () => {
+        resetForm();
+        showNotification('Редактирование отменено', 'warning');
+    });
+
+    // Функция сброса формы
+    function resetForm() {
+        isEditing = false;
+        selectedImages = [];
+        currentImageUrls = [];
+        
+        document.getElementById('postForm').reset();
+        document.getElementById('postId').value = '';
+        document.getElementById('formTitle').textContent = 'Создать новую публикацию';
+        document.getElementById('submitBtn').innerHTML = '<i class="fas fa-paper-plane"></i> Опубликовать';
+        document.getElementById('cancelEdit').classList.add('hidden');
+        document.getElementById('postsManagement').classList.remove('hidden');
+        document.getElementById('imagePreview').classList.add('hidden');
+        document.getElementById('currentImages').classList.add('hidden');
+        document.getElementById('imagePreviewGrid').innerHTML = '';
+        document.getElementById('currentImagesGrid').innerHTML = '';
+        
+        const tagOptions = document.querySelectorAll('.tag-option');
+        tagOptions.forEach(option => {
+            option.classList.remove('selected');
+        });
+        
+        updateHiddenSelect();
+    }
+
+    // Аутентификация
+    onAuthStateChanged(auth, (user) => {
+        const authBtn = document.getElementById('authBtn');
+        const userInfo = document.getElementById('userInfo');
+        const userEmail = document.getElementById('userEmail');
+        const adminBtn = document.getElementById('adminBtn');
+        
+        window.currentUser = user;
+        
+        if (user) {
+            authBtn.classList.add('hidden');
+            userInfo.classList.remove('hidden');
+            userEmail.textContent = user.email;
+            
+            const isAdmin = allowedAdmins.includes(user.email);
+            if (isAdmin) {
+                adminBtn.classList.remove('hidden');
+                document.getElementById('postsManagement').classList.remove('hidden');
+                initCustomTags();
+            } else {
+                adminBtn.classList.add('hidden');
+                document.getElementById('postsManagement').classList.add('hidden');
+                if (router.getCurrentPath() === '/admin') {
+                    router.navigate('/');
+                    showNotification('У вас нет прав администратора', 'error');
+                }
+            }
+        } else {
+            authBtn.classList.remove('hidden');
+            userInfo.classList.add('hidden');
+            adminBtn.classList.add('hidden');
+            document.getElementById('postsManagement').classList.add('hidden');
+            if (router.getCurrentPath() === '/admin') {
+                router.navigate('/');
+            }
+        }
+        
+        // ВАЖНО: Этот блок логики, который касается загрузки комментариев, 
+        // остается ЗДЕСЬ, так как он зависит от currentArticleId, который 
+        // может быть установлен только после авторизации или роутинга.
+        if (router.getCurrentPath() !== '/' && router.getCurrentPath() !== '/admin') {
+            const slug = router.getCurrentPath().substring(1);
+            if (currentArticleId) {
+                loadComments(currentArticleId);
+            }
+        }
+    });
+
+    // Делаем функции глобальными
+    window.closeModal = closeModal;
+    window.closeAuthModal = closeAuthModal;
+    window.goToHomePage = goToHomePage;
+    window.editPost = editPost;
+    window.deletePostPrompt = deletePostPrompt;
+    window.deleteComment = deleteComment;
+    window.confirmDelete = confirmDelete;
+    
+    // КОД router.init() был перенесен выше
+    
+    console.log('Neuron News инициализирован с ImgBB загрузкой изображений');
+}
 
         // Запуск приложения
         document.addEventListener('DOMContentLoaded', initApp);
